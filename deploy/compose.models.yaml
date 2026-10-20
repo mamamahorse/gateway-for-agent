@@ -1,0 +1,9 @@
+# One-off explicit model preparation only. Normal agent service stays read-only.
+services:
+  agent:
+    environment:
+      HF_HUB_OFFLINE: "0"
+      TRANSFORMERS_OFFLINE: "0"
+    volumes: !override
+      - agent_data:/app/.data
+      - agent_models:/app/.models

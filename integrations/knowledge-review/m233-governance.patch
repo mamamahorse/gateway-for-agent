@@ -1,0 +1,1355 @@
+--- a/web_app.py
++++ b/web_app.py
+@@ -41,7 +41,6 @@
+ from context import format_context
+ from structured_output import structured_protocols
+ from library_store import LibraryStore
+-from conversation_title import auto_title
+ from outline_store import OutlineStore, OutlineBusy
+ from outline_service import (scope_fingerprint, run_outline, public_outline,
+                              candidate_context, edit_candidate, enroll_candidate, require_current)
+@@ -420,6 +419,10 @@
+     app = FastAPI(title="Knowledge Review", docs_url=None, redoc_url=None, lifespan=streams.lifespan)
+     app.state.stream_runner = streams
+ 
++    @app.get("/internal/metrics")
++    def worker_metrics():
++        return streams.snapshot()
++
+     @app.get("/healthz")
+     def healthz():
+         return {"status": "ok"}
+@@ -533,6 +536,7 @@
+         return outline_action(action)
+ 
+     @app.post('/api/collections/{identity}/outlines', status_code=202)
++    @streams.detached("outline", resume=False)
+     def create_outline(identity: str, payload: OutlineRequest, background: BackgroundTasks):
+         def action():
+             snapshots = collection_snapshots(identity)
+@@ -554,6 +558,7 @@
+         return outline_action(lambda: public_outline(outlines, identity, collection_snapshots))
+ 
+     @app.post('/api/outlines/{identity}/resume', status_code=202)
++    @streams.detached("outline", resume=True)
+     def resume_outline(identity: str, background: BackgroundTasks):
+         def action():
+             with outlines.lock(identity):
+@@ -569,13 +574,14 @@
+ 
+     @app.post('/api/outlines/{identity}/pause')
+     def pause_outline(identity: str):
+-        return outline_action(lambda: (outlines.pause(identity), {'id': identity})[1])
++        return outline_action(lambda: (outlines.pause(identity), streams.cancel_job('outline', identity), {'id': identity})[2])
+ 
+     @app.patch('/api/outline-candidates/{identity}')
+     def update_outline_candidate(identity: str, payload: OutlineEditRequest):
+         return outline_action(lambda: {'revision': edit_candidate(outlines, identity, payload.learning, payload.revision)})
+ 
+     @app.post('/api/outlines/{identity}/grouping', status_code=202)
++    @streams.detached("grouping", resume=False)
+     def group_outline(identity: str, payload: OutlineGroupRequest, background: BackgroundTasks):
+         def action():
+             from outline_grouping import start_grouping
+@@ -590,6 +596,7 @@
+         return outline_action(action)
+ 
+     @app.post('/api/outline-group-runs/{identity}/retry', status_code=202)
++    @streams.detached("grouping", resume=True)
+     def retry_outline_grouping(identity: str, background: BackgroundTasks, payload: OutlineGroupContinueRequest):
+         def action():
+             from outline_grouping import retry_grouping
+@@ -606,6 +613,7 @@
+             from outline_group_steps import pause_grouping
+             get_run(outlines, identity)
+             pause_grouping(outlines, identity)
++            streams.cancel_job('grouping', identity)
+             return {'id': identity}
+         return outline_action(action)
+ 
+@@ -624,6 +632,7 @@
+         return outline_action(action)
+ 
+     @app.post('/api/outline-groups/{identity}/source-reviews', status_code=202)
++    @streams.detached("review", resume=False)
+     def source_review(identity: str, payload: OutlineSourceReviewRequest, background: BackgroundTasks):
+         def action():
+             from outline_review import start_source_review, run_source_review
+@@ -636,6 +645,7 @@
+         return outline_action(action)
+ 
+     @app.post('/api/outline-source-reviews/{identity}/continue', status_code=202)
++    @streams.detached("review", resume=True)
+     def continue_review(identity: str, payload: OutlineGroupContinueRequest, background: BackgroundTasks):
+         def action():
+             from outline_review import continue_source_review, run_source_review
+@@ -647,7 +657,7 @@
+     @app.post('/api/outline-source-reviews/{identity}/pause')
+     def pause_source_review(identity: str):
+         from outline_review_store import pause_review
+-        return outline_action(lambda: (pause_review(outlines, identity), {'id': identity})[1])
++        return outline_action(lambda: (pause_review(outlines, identity), streams.cancel_job('review', identity), {'id': identity})[2])
+ 
+     @app.post('/api/outline-source-reviews/{identity}/apply')
+     def apply_review(identity: str, payload: OutlineSourceReviewApplyRequest):
+@@ -656,6 +666,7 @@
+             collection_snapshots, payload.canonical_id, payload.unit_id)})
+ 
+     @app.post('/api/outlines/{identity}/routes',status_code=202)
++    @streams.detached("route", resume=False)
+     def generate_route(identity: str,payload: OutlineRouteRequest,background: BackgroundTasks):
+         def action():
+             from outline_routes import start_route,run_route
+@@ -667,6 +678,7 @@
+         return outline_action(action)
+ 
+     @app.post('/api/outline-routes/{identity}/continue',status_code=202)
++    @streams.detached("route", resume=True)
+     def retry_route(identity: str,payload: OutlineGroupContinueRequest,background: BackgroundTasks):
+         def action():
+             from outline_routes import continue_route,run_route
+@@ -678,7 +690,7 @@
+     @app.post('/api/outline-routes/{identity}/pause')
+     def stop_route(identity: str):
+         from outline_route_store import pause_route
+-        return outline_action(lambda:(pause_route(outlines,identity),{'id':identity})[1])
++        return outline_action(lambda:(pause_route(outlines,identity),streams.cancel_job('route',identity),{'id':identity})[2])
+ 
+     @app.patch('/api/outline-route-edges/{identity}')
+     def review_route_edge(identity: str,payload: OutlineRouteEdgeRequest):
+@@ -991,10 +1003,10 @@
+                 pass  # A live generation is displayed as running; do not reset it.
+             turns = conversations.turns(identity, after=after_seq, limit=limit)
+             chat = conversations.get_conversation(identity)
+-            if chat["title_state"] in ("pending", "generating"):
++            if chat["title_state"] in ("pending", "generating", "failed"):
+                 completed = next((turn for turn in turns if turn["status"] == "completed"), None)
+                 if completed:
+-                    background_tasks.add_task(auto_title, conversations, identity, completed["request"].get("response_language", "zh"))
++                    background_tasks.add_task(streams.title, conversations, identity, completed["request"].get("response_language", "zh"))
+             return {"conversation": conversations.get_conversation(identity),
+                     "turns": [public_turn(turn) for turn in turns],
+                     "next_cursor": turns[-1]["seq"] if len(turns) == limit else None,
+@@ -1079,7 +1091,8 @@
+             return conversation_action(lambda: execute_turn(
+                 identity, payload.request_id, payload.model_dump(exclude={"request_id"}), event_sink=notify))
+ 
+-        return await streams.response(action, lambda: auto_title(conversations, identity, payload.response_language), request=request)
++        return await streams.response(action, request=request,
++            after_released=lambda: streams.title(conversations, identity, payload.response_language))
+ 
+     @app.post("/api/conversations/{identity}/turns")
+     @streams.bounded
+@@ -1088,7 +1101,7 @@
+             raise HTTPException(status_code=400, detail="请输入问题。")
+         result = conversation_action(lambda: execute_turn(identity, payload.request_id, payload.model_dump(exclude={"request_id"})))
+         if result["status"] == "completed":
+-            background_tasks.add_task(auto_title, conversations, identity, payload.response_language)
++            background_tasks.add_task(streams.title, conversations, identity, payload.response_language)
+         return result
+ 
+     @app.post("/api/conversations/{identity}/turns/{turn_id}/retry")
+@@ -1102,7 +1115,7 @@
+         result = conversation_action(action)
+         if result["status"] == "completed":
+             language = payload.response_language or conversations.turn(turn_id)["request"].get("response_language", "zh")
+-            background_tasks.add_task(auto_title, conversations, identity, language)
++            background_tasks.add_task(streams.title, conversations, identity, language)
+         return result
+ 
+     @app.post("/api/conversations/{identity}/turns/{turn_id}/skip")
+--- a/outline_service.py
++++ b/outline_service.py
+@@ -1,5 +1,6 @@
+ """Bounded source analysis, reviewable proposals, and explicit atomic enrollment."""
+ 
++from agent_work import job_boundary
+ import json
+ from datetime import datetime, timezone
+ from hashlib import sha256
+@@ -159,6 +160,7 @@
+         raise OutlineBusy('集合资料或文件版本已变化；旧清单保留供查看，请按当前资料生成新清单。')
+ 
+ 
++@job_boundary("outline")
+ def run_outline(store, identity, current_snapshots):
+     owns_lock = False
+     try:
+--- a/outline_grouping.py
++++ b/outline_grouping.py
+@@ -1,5 +1,6 @@
+ """Bounded semantic comparison of selected candidates with their actual original evidence."""
+ 
++from agent_work import job_boundary
+ import json
+ from contextlib import closing
+ from typing import Literal
+@@ -117,6 +118,7 @@
+             raise ValueError('非重复建议不能指定代表目标。')
+ 
+ 
++@job_boundary("grouping")
+ def run_grouping(store, identity, current):
+     attempt = None
+     try:
+--- a/outline_review.py
++++ b/outline_review.py
+@@ -1,4 +1,5 @@
+ """Finite source investigation after grouping; conclusions remain opt-in decisions."""
++from agent_work import job_boundary
+ import json
+ from contextlib import closing
+ from uuid import uuid4
+@@ -91,6 +92,7 @@
+     return evidence, observations
+ 
+ 
++@job_boundary("review")
+ def run_source_review(store, identity, current):
+     attempt = None
+     step = None
+--- a/outline_routes.py
++++ b/outline_routes.py
+@@ -1,4 +1,5 @@
+ """Generate a bounded, recoverable route; human decisions never enroll or gate."""
++from agent_work import job_boundary
+ import json
+ from contextlib import closing
+ from uuid import uuid4
+@@ -83,6 +84,7 @@
+         return identity
+ 
+ 
++@job_boundary("route")
+ def run_route(store, identity, current):
+     attempt=page=None; locked=False
+     try:
+--- a/conversation_title.py
++++ b/conversation_title.py
+@@ -4,7 +4,7 @@
+ import logging
+ from dataclasses import replace
+ 
+-from agent_cancel import model_http_options
++from agent_cancel import GenerationCancelled, checkpoint, model_http_options
+ from openai import OpenAI
+ from pydantic import Field
+ 
+@@ -52,13 +52,24 @@
+         store.assert_dependencies([{"conversation_id": identity, "revision": chat["memory_revision"]}])
+         question, answer = history[0]["content"], history[1]["content"]
+         title = generate_title(question, answer, language)
++    except GenerationCancelled:
++        store.publish_title(identity, attempt)
++        raise
+     except Exception as exc:
+         logging.getLogger(__name__).warning("Chat title generation failed (%s)", type(exc).__name__)
+         store.publish_title(identity, attempt)
++        return 'failed'
+     else:
+         try:
+             store.assert_dependencies([{"conversation_id": identity, "revision": chat["memory_revision"]}])
+         except ValueError:
+             store.publish_title(identity, attempt)
+             return
++        try:
++            checkpoint()
++        except GenerationCancelled:
++            store.publish_title(identity, attempt)
++            raise
+         store.publish_title(identity, attempt, title)
++        saved = store.get_conversation(identity)
++        return 'completed' if saved['title_state'] == 'generated' and saved['title'] == title else 'skipped'
+--- a/outline_store.py
++++ b/outline_store.py
+@@ -174,6 +174,11 @@
+         with self.practice.transaction() as db:
+             db.execute("UPDATE learning_outlines SET status='paused',updated_at=? WHERE id=? AND status IN ('queued','running')", (timestamp(), identity))
+ 
++            db.execute("UPDATE outline_batches SET status='failed',attempt=NULL,error=? WHERE outline_id=? AND status='running'",
++                       ('本段曾被暂停，可继续。', identity))
++            db.execute("UPDATE outline_context_steps SET status='failed',attempt=NULL,error=? WHERE outline_id=? AND status='running'",
++                       ('背景步骤曾被暂停，可继续。', identity))
++
+     def claim_batch(self, identity):
+         with self.practice.transaction() as db:
+             job = db.execute("SELECT status FROM learning_outlines WHERE id=?", (identity,)).fetchone()
+--- a/test_outlines.py
++++ b/test_outlines.py
+@@ -4,6 +4,7 @@
+ import re
+ import shutil
+ import unittest
++from test_agent_governance import wait_for
+ from contextlib import closing
+ from pathlib import Path
+ from unittest.mock import patch
+@@ -243,7 +244,12 @@
+             run_outline(self.store, identity, self.current)
+             self.assertEqual(model.call_count, 1)
+         self.assertEqual(self.store.get(identity)['status'], 'paused')
+-        self.assertEqual(len(self.store.get(identity)['candidates']), 1)
++        self.assertEqual(len(self.store.get(identity)['candidates']), 0)
++        self.assertTrue(any(b['status'] == 'failed' for b in self.store.get(identity)['batches']))
++        self.store.resume(identity)
++        with patch('outline_service._request_structured', side_effect=fake_model):
++            run_outline(self.store, identity, self.current)
++        self.assertEqual(self.store.get(identity)['status'], 'completed')
+ 
+     def test_http_nested_collection_empty_scope_and_corrected_hint(self):
+         app = create_app(self.root / 'uploads', self.practice.path)
+@@ -255,6 +261,7 @@
+             response = client.post(f'/api/collections/{parent}/outlines', json={'request_id': 'api', 'response_language': 'en'})
+             self.assertEqual(response.status_code, 202, response.text)
+             identity = response.json()['id']
++            wait_for(lambda: client.get('/internal/metrics').json()['held_slots'] == 0)
+             job = client.get(f'/api/outlines/{identity}').json()
+             self.assertEqual(job['response_language'], 'en')
+             self.assertEqual({s['document_id'] for s in job['coverage']}, {imported['id']})
+--- a/test_outline_context.py
++++ b/test_outline_context.py
+@@ -152,7 +152,8 @@
+         self.assertEqual(model.call_count, 1)
+         job = self.store.get(identity)
+         self.assertEqual(job['status'], 'paused')
+-        self.assertEqual(job['context_steps'][0]['status'], 'completed')
++        self.assertEqual(job['context_steps'][0]['status'], 'failed')
++        self.assertIsNone(job['context_steps'][0]['result'])
+         self.store.resume(identity)
+         with patch('outline_service._request_structured', side_effect=controlled):
+             run_outline(self.store, identity, self.current)
+--- a/test_outline_groups.py
++++ b/test_outline_groups.py
+@@ -2,6 +2,7 @@
+ 
+ import json
+ import unittest
++from test_agent_governance import wait_for
+ from contextlib import closing
+ from unittest.mock import patch
+ 
+@@ -12,15 +13,15 @@
+ from outline_service import public_outline, edit_candidate, enroll_candidate
+ from outline_grouping import (GroupDraft, GroupProposal, start_grouping, run_grouping,
+                              retry_grouping, group_messages, validate_result)
+-from outline_group_store import rows, get_run, review_group
+-from outline_group_plan import ComparisonPage
++from outline_group_store import rows, get_run, review_group
++from outline_group_plan import ComparisonPage
+ import test_outlines as fixtures
+ from test_outlines import fake_model, TEXT
+-from web_app import create_app
+-
+-
+-def page_fixture(messages, result):
+-    return ComparisonPage(**result.model_dump(), checked_indices=[p['index'] for p in json.loads(messages[1]['content'])['comparisons']], deferred_indices=[])
++from web_app import create_app
++
++
++def page_fixture(messages, result):
++    return ComparisonPage(**result.model_dump(), checked_indices=[p['index'] for p in json.loads(messages[1]['content'])['comparisons']], deferred_indices=[])
+ 
+ 
+ class OutlineGroupTests(unittest.TestCase):
+@@ -43,7 +44,7 @@
+         result = GroupDraft(suggestions=[GroupProposal(kind=kind, candidate_ids=[c['id'] for c in candidates[:2]],
+             name='Shared evidence', reason='Same concept, independent criteria and original source evidence.',
+             canonical_id=candidates[0]['id'] if kind == 'duplicate_targets' else None)], note='Selected input only.')
+-        with patch('outline_grouping._request_structured', side_effect=lambda messages, schema: page_fixture(messages, result)):
++        with patch('outline_grouping._request_structured', side_effect=lambda messages, schema: page_fixture(messages, result)):
+             run_grouping(self.store, run_id, self.current)
+         self.assertEqual(get_run(self.store, run_id)['status'], 'completed')
+         return identity, candidates, run_id, rows(self.store, identity)[1][0]
+@@ -123,9 +124,9 @@
+         self.decide(group, 'proposed', name='Edited grouping')
+         with self.assertRaises(OutlineBusy):
+             self.decide(group)
+-        group = rows(self.store, identity)[1][0]
+-        self.assertEqual(group['proposal']['name'], 'Edited grouping')
+-        self.assertEqual(group['model_proposal']['name'], 'Shared evidence')
++        group = rows(self.store, identity)[1][0]
++        self.assertEqual(group['proposal']['name'], 'Edited grouping')
++        self.assertEqual(group['model_proposal']['name'], 'Shared evidence')
+         self.decide(group)
+ 
+     def test_candidate_edit_invalidates_accepted_group_without_rewriting_old_plan(self):
+@@ -179,7 +180,7 @@
+         retry_grouping(self.store, run_id, self.current)
+         result = GroupDraft(suggestions=[GroupProposal(kind='same_knowledge', candidate_ids=[c['id'] for c in candidates],
+             name='Same knowledge', reason='Evidence', canonical_id=None)], note='No complete coverage claim')
+-        with patch('outline_grouping._request_structured', side_effect=lambda messages, schema: page_fixture(messages, result)) as model:
++        with patch('outline_grouping._request_structured', side_effect=lambda messages, schema: page_fixture(messages, result)) as model:
+             run_grouping(self.store, run_id, self.current)
+             run_grouping(self.store, run_id, self.current)
+             self.assertEqual(model.call_count, 1)
+@@ -194,7 +195,7 @@
+             self.library.create('Network is not a write transaction', 'root')
+             draft = LearningDraft.model_validate(candidates[0]['learning'])
+             edit_candidate(self.store, candidates[0]['id'], draft, 1)
+-            return page_fixture(messages, GroupDraft(suggestions=[], note='Late result'))
++            return page_fixture(messages, GroupDraft(suggestions=[], note='Late result'))
+         with patch('outline_grouping._request_structured', side_effect=late):
+             run_grouping(self.store, run_id, self.current)
+         self.assertEqual(get_run(self.store, run_id)['status'], 'failed')
+@@ -231,7 +232,7 @@
+             run_grouping(self.store, run_id, self.current)
+             model.assert_not_called()
+         self.assertEqual(get_run(self.store, run_id)['status'], 'failed')
+-        self.assertIn('预算', get_run(self.store, run_id)['error'])
++        self.assertIn('预算', get_run(self.store, run_id)['error'])
+         self.assertEqual(before, get_run(self.store, run_id)['inputs_json'])
+ 
+     def test_scope_change_prevents_publish_and_acceptance_http(self):
+@@ -263,7 +264,7 @@
+         run_id = start_grouping(self.store, identity, 'overlap', 'zh', None, self.current)
+         result = GroupDraft(suggestions=[GroupProposal(kind='same_knowledge', candidate_ids=[c['id'] for c in candidates[1:]],
+             name='Overlap', reason='Potential relation', canonical_id=None)], note='Overlap')
+-        with patch('outline_grouping._request_structured', side_effect=lambda messages, schema: page_fixture(messages, result)):
++        with patch('outline_grouping._request_structured', side_effect=lambda messages, schema: page_fixture(messages, result)):
+             run_grouping(self.store, run_id, self.current)
+         second = rows(self.store, identity)[1][1]
+         self.decide(first)
+@@ -274,30 +275,32 @@
+         self.decide(rows(self.store, identity)[1][0], 'rejected')
+         self.assertEqual(self.counts(), before)
+ 
+-    def test_http_generate_review_refresh_and_duplicate_post(self):
+-        app = create_app(self.root / 'uploads', self.practice.path)
+-        collection = self.library.create('HTTP scope', 'root')['id']
+-        with TestClient(app) as client:
+-            response = client.post(f'/api/documents?collection_id={collection}', files=[('files', ('tcp.md', TEXT.encode(), 'text/markdown'))])
+-            self.assertEqual(response.status_code, 201, response.text)
+-            document = client.get(f"/api/documents/{response.json()[0]['id']}").json()
+-        from sources import load_sources
+-        path = next((self.root / 'uploads').glob('*/*.md'))
+-        self.source = load_sources([path])[0]
+-        self.snapshots = [{'document_id': document['id'], 'source_id': self.source.source_id,
+-                           'path': str(path), 'name': 'tcp.md', 'text': TEXT}]
+-        fixture_id = self.create(collection=collection)
+-        with patch('outline_service._request_structured', side_effect=fake_model):
+-            fixtures.run_outline(self.store, fixture_id, self.current)
+-        with TestClient(app) as client:
++    def test_http_generate_review_refresh_and_duplicate_post(self):
++        app = create_app(self.root / 'uploads', self.practice.path)
++        collection = self.library.create('HTTP scope', 'root')['id']
++        with TestClient(app) as client:
++            response = client.post(f'/api/documents?collection_id={collection}', files=[('files', ('tcp.md', TEXT.encode(), 'text/markdown'))])
++            self.assertEqual(response.status_code, 201, response.text)
++            document = client.get(f"/api/documents/{response.json()[0]['id']}").json()
++        from sources import load_sources
++        path = next((self.root / 'uploads').glob('*/*.md'))
++        self.source = load_sources([path])[0]
++        self.snapshots = [{'document_id': document['id'], 'source_id': self.source.source_id,
++                           'path': str(path), 'name': 'tcp.md', 'text': TEXT}]
++        fixture_id = self.create(collection=collection)
++        with patch('outline_service._request_structured', side_effect=fake_model):
++            fixtures.run_outline(self.store, fixture_id, self.current)
++        app = create_app(self.root / 'uploads', self.practice.path)
++        with TestClient(app) as client:
+             ids = [c['id'] for c in self.store.get(fixture_id)['candidates'][:2]]
+             result = GroupDraft(suggestions=[GroupProposal(kind='same_knowledge', candidate_ids=ids,
+                 name='HTTP group', reason='Reviewable evidence', canonical_id=None)], note='Mock interface')
+-            with patch('outline_grouping._request_structured', side_effect=lambda messages, schema: page_fixture(messages, result)):
++            with patch('outline_grouping._request_structured', side_effect=lambda messages, schema: page_fixture(messages, result)):
+                 payload = {'request_id': 'group-api', 'candidate_ids': ids, 'response_language': 'en'}
+                 response = client.post(f'/api/outlines/{fixture_id}/grouping', json=payload)
+                 self.assertEqual(response.status_code, 202, response.text)
+                 self.assertEqual(client.post(f'/api/outlines/{fixture_id}/grouping', json=payload).json(), response.json())
++                wait_for(lambda: client.get('/internal/metrics').json()['held_slots'] == 0)
+             job = client.get(f'/api/outlines/{fixture_id}').json()
+             group = job['grouping']['suggestions'][0]
+             payload = {k: group['proposal'][k] for k in ('name', 'reason', 'canonical_id')}
+@@ -306,44 +309,44 @@
+             approved = client.patch(url, json=payload)
+             self.assertEqual(approved.status_code, 200, approved.text)
+             self.assertEqual(client.patch(url, json=payload).json(), approved.json())
+-            self.assertEqual(client.get(f'/api/outlines/{fixture_id}').json()['grouping']['suggestions'][0]['status'], 'accepted')
+-
+-    def test_forged_evidence_outside_original_visibility_is_not_sent_to_group_model(self):
+-        identity, c = self.generated()
+-        draft = c['learning']
+-        draft['knowledge']['citations'][0]['line_start'] = 7
+-        draft['knowledge']['citations'][0]['line_end'] = 7
+-        with self.practice.transaction() as db:
+-            db.execute('UPDATE outline_candidates SET proposal_json=? WHERE id=?', (json.dumps(draft), c['id']))
+-        run_id = start_grouping(self.store, identity, 'forged', 'zh', None, self.current)
+-        with patch('outline_grouping._request_structured') as model:
+-            run_grouping(self.store, run_id, self.current)
+-            model.assert_not_called()
+-        self.assertEqual(get_run(self.store, run_id)['status'], 'failed')
+-        self.assertEqual(rows(self.store, identity)[1], [])
+-
+-    def test_first_seed_failure_does_not_bind_unit_and_retries_create_once(self):
+-        identity, candidates, _, group = self.prepare()
+-        self.decide(group)
+-        with patch('outline_service._request_structured', side_effect=RuntimeError('failure')):
+-            with self.assertRaises(RuntimeError):
+-                enroll_candidate(self.store, candidates[0]['id'], 1, 'root', None, 'en', self.current)
+-        self.assertIsNone(rows(self.store, identity)[1][0]['unit_id'])
+-        self.assertEqual(self.counts(), [0, 0, 0, 0, 0])
+-        self.enroll(candidates[0])
+-        self.enroll(candidates[0])
+-        self.assertEqual(self.counts()[2], 1)
+-
+-    def test_database_failure_rolls_back_new_group_unit_and_seed_atomically(self):
+-        identity, candidates, _, group = self.prepare()
+-        self.decide(group)
+-        with patch('outline_service._request_structured', side_effect=fake_model), patch.object(self.practice, 'enroll', side_effect=RuntimeError('transaction failed')):
+-            with self.assertRaises(RuntimeError):
+-                enroll_candidate(self.store, candidates[0]['id'], 1, 'root', None, 'en', self.current)
+-        self.assertEqual(self.counts(), [0, 0, 0, 0, 0])
+-        self.assertIsNone(rows(self.store, identity)[1][0]['unit_id'])
+-        with closing(self.practice._connect()) as db:
+-            self.assertEqual(db.execute('SELECT count(*) FROM knowledge_units').fetchone()[0], 0)
++            self.assertEqual(client.get(f'/api/outlines/{fixture_id}').json()['grouping']['suggestions'][0]['status'], 'accepted')
++
++    def test_forged_evidence_outside_original_visibility_is_not_sent_to_group_model(self):
++        identity, c = self.generated()
++        draft = c['learning']
++        draft['knowledge']['citations'][0]['line_start'] = 7
++        draft['knowledge']['citations'][0]['line_end'] = 7
++        with self.practice.transaction() as db:
++            db.execute('UPDATE outline_candidates SET proposal_json=? WHERE id=?', (json.dumps(draft), c['id']))
++        run_id = start_grouping(self.store, identity, 'forged', 'zh', None, self.current)
++        with patch('outline_grouping._request_structured') as model:
++            run_grouping(self.store, run_id, self.current)
++            model.assert_not_called()
++        self.assertEqual(get_run(self.store, run_id)['status'], 'failed')
++        self.assertEqual(rows(self.store, identity)[1], [])
++
++    def test_first_seed_failure_does_not_bind_unit_and_retries_create_once(self):
++        identity, candidates, _, group = self.prepare()
++        self.decide(group)
++        with patch('outline_service._request_structured', side_effect=RuntimeError('failure')):
++            with self.assertRaises(RuntimeError):
++                enroll_candidate(self.store, candidates[0]['id'], 1, 'root', None, 'en', self.current)
++        self.assertIsNone(rows(self.store, identity)[1][0]['unit_id'])
++        self.assertEqual(self.counts(), [0, 0, 0, 0, 0])
++        self.enroll(candidates[0])
++        self.enroll(candidates[0])
++        self.assertEqual(self.counts()[2], 1)
++
++    def test_database_failure_rolls_back_new_group_unit_and_seed_atomically(self):
++        identity, candidates, _, group = self.prepare()
++        self.decide(group)
++        with patch('outline_service._request_structured', side_effect=fake_model), patch.object(self.practice, 'enroll', side_effect=RuntimeError('transaction failed')):
++            with self.assertRaises(RuntimeError):
++                enroll_candidate(self.store, candidates[0]['id'], 1, 'root', None, 'en', self.current)
++        self.assertEqual(self.counts(), [0, 0, 0, 0, 0])
++        self.assertIsNone(rows(self.store, identity)[1][0]['unit_id'])
++        with closing(self.practice._connect()) as db:
++            self.assertEqual(db.execute('SELECT count(*) FROM knowledge_units').fetchone()[0], 0)
+ 
+ 
+ if __name__ == '__main__':
+--- a/test_outline_routes.py
++++ b/test_outline_routes.py
+@@ -1,6 +1,7 @@
+ """Controlled interface/lifecycle tests, not real model semantic evaluation."""
+ import json
+ import unittest
++from test_agent_governance import wait_for
+ from contextlib import closing
+ from unittest.mock import patch
+ from fastapi.testclient import TestClient
+@@ -297,6 +298,7 @@
+             response=client.post(f'/api/outlines/{job}/routes',json=payload);self.assertEqual(response.status_code,202)
+             key=response.json()['id']
+             self.assertEqual(client.post(f'/api/outlines/{job}/routes',json=payload).json()['id'],key)
++            wait_for(lambda: client.get('/internal/metrics').json()['held_slots'] == 0)
+             r=client.get(f'/api/outlines/{job}').json()['routes']['runs'][0];self.assertEqual(r['status'],'completed')
+             e=r['edges'][0]
+             self.assertEqual(client.patch(f"/api/outline-route-edges/{e['id']}",json={**{k:e['decision'][k] for k in ('before_id','after_id','kind','reason')},'decision':'accepted','revision':1}).status_code,200)
+--- a/agent_cancel.py
++++ b/agent_cancel.py
+@@ -21,12 +21,14 @@
+ class Cancellation:
+     def __init__(self):
+         self.requested = threading.Event()
++        self.observed = threading.Event()
+ 
+     def cancel(self):
+         self.requested.set()
+ 
+     def check(self):
+         if self.requested.is_set():
++            self.observed.set()
+             raise GenerationCancelled()
+ 
+ 
+--- a/agent_stream.py
++++ b/agent_stream.py
+@@ -5,8 +5,10 @@
+ """
+ 
+ import asyncio
++from collections import Counter
+ from concurrent.futures import ThreadPoolExecutor
+ from contextlib import asynccontextmanager
++from datetime import datetime, timezone
+ from functools import wraps
+ import inspect
+ import json
+@@ -20,6 +22,14 @@
+ from fastapi.responses import StreamingResponse
+ 
+ from agent_cancel import Cancellation, GenerationCancelled, cancellation_scope, checkpoint
++from agent_work import DetachedTask, interrupt_job, job_status, work_scope
++
++
++class WorkLease:
++    def __init__(self, kind, token, key=None):
++        self.kind, self.token, self.key = kind, token, key
++        self.aliases = set()
++        self.state = 'reserved'
+ 
+ 
+ class EventLimit(RuntimeError):
+@@ -161,9 +171,15 @@
+         self.pool = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="agent-model")
+         # ThreadPoolExecutor's own queue is unbounded; admit before submit.
+         self.slots = threading.BoundedSemaphore(workers)
++        self.workers = workers
++        self.started_at = time.monotonic()
+         self.closed = False
+         self.tokens = set()
+-        self.tokens_lock = threading.Lock()
++        self.tokens_lock = threading.RLock()
++        self.keys = {}
++        fields = ('reserved', 'running', 'submitted', 'started', 'exited', 'completed', 'failed',
++                  'cancelled', 'cancel_requested', 'paused', 'stale', 'other', 'rejected', 'deduplicated', 'skipped')
++        self.work_counts = {kind: Counter(dict.fromkeys(fields, 0)) for kind in ('request', 'background', 'title')}
+ 
+     @asynccontextmanager
+     async def lifespan(self, app):
+@@ -176,30 +192,179 @@
+                     token.cancel()
+             self.pool.shutdown(wait=False, cancel_futures=False)
+ 
+-    def _submit(self, action, token=None):
+-        if self.closed or not self.slots.acquire(blocking=False):
+-            raise HTTPException(503, "模型执行槽位已满，请稍后重试。", headers={"Retry-After": "1"})
+-        token = token or Cancellation()
+-        with self.tokens_lock:
+-            self.tokens.add(token)
++    def snapshot(self):
++        with self.tokens_lock:
++            counts = {kind: dict(row) for kind, row in self.work_counts.items()}
++            return {'schema_version': 1, 'scope': 'python_process', 'workers': self.workers,
++                    'uptime_ms': int((time.monotonic() - self.started_at) * 1000),
++                    'held_slots': sum(row['reserved'] + row['running'] for row in counts.values()),
++                    'queued': 0, 'queue_limit': 0, 'owned_keys': len(self.keys), 'types': counts}
++
++    def _reserve(self, kind, token=None, key=None):
++        with self.tokens_lock:
++            row = self.work_counts[kind]
++            if key is not None and key in self.keys:
++                row['deduplicated'] += 1
++                return None
++            occupied = sum(value['reserved'] + value['running'] for value in self.work_counts.values())
++            title_busy = (kind == 'title' and (row['reserved'] + row['running'] >= 1 or
++                          (self.workers > 1 and occupied >= self.workers - 1)))
++            if self.closed or title_busy or not self.slots.acquire(blocking=False):
++                row['rejected'] += 1
++                raise HTTPException(503, "模型执行槽位已满，请稍后重试。", headers={"Retry-After": "1"})
++            lease = WorkLease(kind, token or Cancellation(), key)
++            self.tokens.add(lease.token)
++            row['reserved'] += 1
++            if key is not None:
++                self.keys[key] = lease
++            return lease
++
++    def _claim_key(self, lease, key):
++        with self.tokens_lock:
++            previous = self.keys.get(key)
++            if previous is not None and previous is not lease:
++                self.work_counts[lease.kind]['deduplicated'] += 1
++                return False
++            self.keys[key] = lease
++            if key != lease.key:
++                lease.aliases.add(key)
++            return True
++
++    def _drop_alias(self, lease, key):
++        with self.tokens_lock:
++            if key in lease.aliases and self.keys.get(key) is lease:
++                del self.keys[key]
++                lease.aliases.discard(key)
++
++    def cancel_job(self, kind, identity):
++        with self.tokens_lock:
++            lease = self.keys.get((kind, identity))
++            if lease is not None:
++                lease.token.cancel()
++
++    def _release(self, lease, outcome=None):
++        with self.tokens_lock:
++            if lease.state == 'released':
++                return
++            row = self.work_counts[lease.kind]
++            row[lease.state] -= 1
++            if outcome is not None:
++                row['exited'] += 1
++                if lease.token.requested.is_set():
++                    row['cancel_requested'] += 1
++                row[outcome if outcome in ('completed', 'failed', 'cancelled', 'paused', 'stale', 'skipped') else 'other'] += 1
++            for key in [lease.key, *lease.aliases]:
++                if self.keys.get(key) is lease:
++                    del self.keys[key]
++            self.tokens.discard(lease.token)
++            lease.state = 'released'
++            self.slots.release()
++
++    def _submit(self, action, token=None, *, lease=None, after_released=None):
++        lease = lease or self._reserve('request', token)
+         def work():
+-            with cancellation_scope(token):
+-                token.check()
++            with self.tokens_lock:
++                row = self.work_counts[lease.kind]
++                row['reserved'] -= 1
++                row['running'] += 1
++                row['started'] += 1
++                lease.state = 'running'
++            with cancellation_scope(lease.token), work_scope(self, lease):
++                # Background domain boundaries must see pre-start cancellation
++                # too, so their already-persisted queued record is settled.
++                if lease.kind != 'background':
++                    lease.token.check()
+                 return action()
+         try:
+-            future = self.pool.submit(work)
++            with self.tokens_lock:
++                if self.closed:
++                    raise RuntimeError('Worker entry closed')
++                future = self.pool.submit(work)
++                self.work_counts[lease.kind]['submitted'] += 1
+         except RuntimeError:
+-            with self.tokens_lock:
+-                self.tokens.discard(token)
+-            self.slots.release()
++            self._release(lease)
+             raise HTTPException(503, "服务正在停止。") from None
+         # Release after actual completion, even if the awaiting HTTP task was cancelled.
+-        def finished(_):
+-            with self.tokens_lock:
+-                self.tokens.discard(token)
+-            self.slots.release()
++        def finished(done):
++            error = GenerationCancelled() if done.cancelled() else done.exception()
++            outcome = 'cancelled' if lease.token.observed.is_set() or isinstance(error, GenerationCancelled) else 'failed' if error else 'completed'
++            result = None if error else done.result()
++            if not error and outcome != 'cancelled':
++                if isinstance(result, dict) and result.get('status') in ('completed', 'failed'):
++                    outcome = result['status']
++                elif lease.kind != 'request' and isinstance(result, str):
++                    outcome = result
++                elif lease.kind == 'title' and result is None:
++                    outcome = 'skipped'
++            self._release(lease, outcome)
++            if after_released is not None and not error and outcome == 'completed' and not lease.token.requested.is_set():
++                try:
++                    after_released()
++                except Exception as exc:
++                    logging.getLogger(__name__).warning('Work postprocessing failed (%s)', type(exc).__name__)
+         future.add_done_callback(finished)
+         return future
++
++    def title(self, store, identity, language):
++        from conversation_title import auto_title
++        try:
++            chat = store.get_conversation(identity)
++        except KeyError:
++            return
++        cooling = False
++        if chat['title_state'] == 'failed' and chat.get('title_started_at'):
++            cooling = (datetime.now(timezone.utc) - datetime.fromisoformat(chat['title_started_at'])).total_seconds() < 30
++        if chat['title_state'] in ('manual', 'generated') or cooling:
++            with self.tokens_lock:
++                self.work_counts['title']['skipped'] += 1
++            return
++        try:
++            lease = self._reserve('title', key=('title', identity))
++        except HTTPException:
++            return  # Best effort, no queue or unbounded retained retry closures.
++        if lease is not None:
++            try:
++                self._submit(lambda: auto_title(store, identity, language), lease=lease)
++            except HTTPException:
++                self._release(lease)
++
++    def detached(self, kind, *, resume=False):
++        def decorate(action):
++            signature = inspect.signature(action)
++            @wraps(action)
++            def endpoint(*args, **kwargs):
++                arguments = signature.bind(*args, **kwargs)
++                if resume:
++                    with self.tokens_lock:
++                        if (kind, arguments.arguments['identity']) in self.keys:
++                            raise HTTPException(409, '任务仍在执行或清理，请稍后继续。')
++                lease = self._reserve('background')
++                collector = DetachedTask()
++                arguments.arguments['background'] = collector
++                try:
++                    result = action(*arguments.args, **arguments.kwargs)
++                    if collector.call is not None:
++                        function, positional, keywords = collector.call
++                        store, identity = positional[:2]
++                        key = (kind, identity)
++                        if self._claim_key(lease, key):
++                            lease.key = key
++                            lease.aliases.discard(key)
++                            def work():
++                                function(*positional, **keywords)
++                                return job_status(kind, store, identity)
++                            try:
++                                self._submit(work, lease=lease)
++                            except BaseException:
++                                interrupt_job(kind, store, identity)
++                                raise
++                            lease = None  # Completion callback now owns the slot.
++                    return result
++                finally:
++                    if lease is not None:
++                        self._release(lease)
++            return endpoint
++        return decorate
+ 
+     async def _watch_disconnect(self, request, token):
+         while True:
+@@ -238,7 +403,7 @@
+             inspect.Parameter("gateway_request", inspect.Parameter.KEYWORD_ONLY, annotation=Request)])
+         return endpoint
+ 
+-    async def response(self, action, on_completed=None, request=None):
++    async def response(self, action, on_completed=None, request=None, after_released=None):
+         bridge = EventBridge(asyncio.get_running_loop())
+ 
+         def work():
+@@ -247,16 +412,19 @@
+                 turn = action(bridge.emit)
+                 bridge.complete(turn, code="GENERATION_CANCELLED" if bridge.cancellation.requested.is_set()
+                                 else "GENERATION_FAILED")
++                return turn
+             except GenerationCancelled:
+                 if bridge.turn_id is None:
+                     bridge.announce(HTTPException(499, "请求已取消。"))
+                 else:
+                     bridge.complete(code="GENERATION_CANCELLED")
++                return {'status': 'failed'}
+             except Exception as exc:
+                 if bridge.turn_id is None:
+                     bridge.announce(exc if isinstance(exc, HTTPException) else HTTPException(500, "流式任务未启动。"))
+                 else:
+                     bridge.complete(code="STREAM_LIMIT" if isinstance(exc, EventLimit) else "GENERATION_FAILED")
++                return {'status': 'failed'}
+             finally:
+                 try:
+                     if (not bridge.cancellation.requested.is_set() and on_completed is not None
+@@ -267,12 +435,13 @@
+                 except Exception as exc:
+                     logging.getLogger(__name__).warning("SSE postprocessing failed (%s)", type(exc).__name__)
+ 
+-        submitted = self._submit(work, bridge.cancellation)
++        options = {'after_released': after_released} if after_released is not None else {}
++        submitted = self._submit(work, bridge.cancellation, **options)
+         def before_start_failure(done):
+             # Cancellation can win before the worker enters work() / emits meta.
+             # Resolve the pre-header waiter even in that narrow race.
+             if bridge.turn_id is None:
+-                error = done.exception()
++                error = GenerationCancelled() if done.cancelled() else done.exception()
+                 bridge.announce(HTTPException(499 if isinstance(error, GenerationCancelled) else 500,
+                                               "流式任务未启动。"))
+         submitted.add_done_callback(before_start_failure)
+--- a/agent_work.py
++++ b/agent_work.py
+@@ -0,0 +1,87 @@
++"""Small lifecycle boundaries for existing persisted outline jobs.
++
++No new scheduler/database: StreamRunner owns capacity, original stores own
++attempts and results. Nested reviews reuse the parent's worker and cancellation.
++"""
++from contextlib import contextmanager
++from contextvars import ContextVar
++from functools import wraps
++
++from agent_cancel import GenerationCancelled, checkpoint
++
++
++_work = ContextVar('knowledge_review_work', default=None)
++
++
++@contextmanager
++def work_scope(runner, lease):
++    previous = _work.set((runner, lease))
++    try:
++        yield
++    finally:
++        _work.reset(previous)
++
++
++def job_status(kind, store, identity):
++    if kind == 'outline':
++        return store.get(identity)['status']
++    if kind == 'grouping':
++        from outline_group_store import get_run
++        return get_run(store, identity)['status']
++    if kind == 'review':
++        from outline_review_store import get_review
++        return get_review(store, identity)['status']
++    if kind == 'route':
++        from outline_route_store import route_record
++        return route_record(store, identity)['status']
++    raise ValueError('Unknown background kind')
++
++
++def interrupt_job(kind, store, identity):
++    # Reuse original attempts/status transitions, preserving completed results.
++    if kind == 'outline':
++        with store.lock(identity):
++            store.recover(identity)
++    elif kind == 'grouping':
++        from outline_group_steps import pause_grouping
++        pause_grouping(store, identity)
++    elif kind == 'review':
++        from outline_review_store import pause_review
++        pause_review(store, identity)
++    elif kind == 'route':
++        from outline_route_store import pause_route
++        pause_route(store, identity)
++    else:
++        raise ValueError('Unknown background kind')
++
++
++def job_boundary(kind):
++    def decorate(action):
++        @wraps(action)
++        def run(store, identity, *args, **kwargs):
++            owner = _work.get()
++            key = (kind, identity)
++            if owner is not None and not owner[0]._claim_key(owner[1], key):
++                return  # Already owned by another actual worker in this process.
++            try:
++                checkpoint()
++                return action(store, identity, *args, **kwargs)
++            except GenerationCancelled:
++                interrupt_job(kind, store, identity)
++                raise
++            finally:
++                if owner is not None:
++                    owner[0]._drop_alias(owner[1], key)
++        return run
++    return decorate
++
++
++class DetachedTask:
++    """One existing BackgroundTasks call, collected before reserving execution."""
++    def __init__(self):
++        self.call = None
++
++    def add_task(self, function, *args, **kwargs):
++        if self.call is not None:
++            raise RuntimeError('A job submission must schedule exactly one workflow')
++        self.call = (function, args, kwargs)
+--- a/test_agent_governance.py
++++ b/test_agent_governance.py
+@@ -0,0 +1,332 @@
++"""Actual worker ownership, detached acceptance and title scheduling semantics."""
++import asyncio
++from contextlib import closing
++from datetime import datetime, timezone
++import json
++import os
++import shutil
++import threading
++import time
++import unittest
++from unittest.mock import patch
++
++from fastapi import HTTPException
++from fastapi.testclient import TestClient
++
++from agent_cancel import GenerationCancelled, checkpoint
++from agent_stream import StreamRunner
++from agent_work import job_boundary
++from test_support import temporary_notes
++from web_app import create_app
++
++
++def wait_for(predicate, timeout=3):
++    end = time.monotonic() + timeout
++    while time.monotonic() < end:
++        value = predicate()
++        if value:
++            return value
++        time.sleep(.01)
++    raise AssertionError('Timed out waiting for actual worker transition')
++
++
++class TitleStore:
++    def __init__(self):
++        self.chat = {'title_state': 'pending', 'memory_revision': 1,
++                     'title_started_at': None, 'title': '新聊天'}
++        self.claims = 0
++
++    def get_conversation(self, identity):
++        return dict(self.chat)
++
++    def opening_messages(self, identity):
++        return [{'content': 'private-question'}, {'content': 'private-answer'}]
++
++    def claim_title(self, identity):
++        self.claims += 1
++        self.chat.update(title_state='generating', title_started_at=datetime.now(timezone.utc).isoformat())
++        return 'public-attempt'
++
++    def assert_dependencies(self, value):
++        pass
++
++    def publish_title(self, identity, attempt, title=None):
++        self.chat['title_state'] = 'generated' if title else 'failed'
++        if title:
++            self.chat['title'] = title
++
++
++class WorkerGovernanceTests(unittest.TestCase):
++    def setUp(self):
++        self.runner = StreamRunner(workers=2)
++        self.release = threading.Event()
++        self.started = threading.Event()
++
++    def tearDown(self):
++        self.release.set()
++        self.runner.pool.shutdown(wait=True)
++
++    def held(self):
++        return self.runner.snapshot()['held_slots']
++
++    def test_reserved_is_distinct_from_running_and_snapshot_has_no_identity(self):
++        lease = self.runner._reserve('background')
++        try:
++            snapshot = self.runner.snapshot()
++            self.assertEqual(snapshot['types']['background']['reserved'], 1)
++            self.assertEqual(snapshot['types']['background']['running'], 0)
++            self.assertEqual(snapshot['held_slots'], 1)
++            self.assertEqual(snapshot['queue_limit'], 0)
++        finally:
++            self.runner._release(lease)
++        self.assertEqual(self.held(), 0)
++        self.assertEqual(self.runner.snapshot()['types']['background']['submitted'], 0)
++
++    def test_title_deduplication_is_bounded_and_leaves_request_capacity(self):
++        store = TitleStore()
++        def generate(*args):
++            self.started.set()
++            self.release.wait(3)
++            return 'Public title'
++        with patch('conversation_title.generate_title', side_effect=generate):
++            self.runner.title(store, 'private-key-and-id', 'zh')
++            self.assertTrue(self.started.wait(2))
++            for _ in range(100):
++                self.runner.title(store, 'private-key-and-id', 'zh')
++            self.assertEqual(store.claims, 1)
++            self.assertEqual(self.held(), 1)
++            self.assertEqual(self.runner._submit(lambda: 42).result(2), 42)
++            stats = self.runner.snapshot()
++            self.assertGreaterEqual(stats['types']['title']['deduplicated'], 100)
++            self.assertEqual(stats['owned_keys'], 1)
++            for private in ('private-key-and-id', 'private-question', 'private-answer', 'public-attempt'):
++                self.assertNotIn(private, json.dumps(stats))
++            self.release.set()
++            wait_for(lambda: self.held() == 0)
++        self.assertEqual(store.chat['title_state'], 'generated')
++        self.assertEqual(self.runner.snapshot()['types']['title']['completed'], 1)
++
++    def test_at_most_one_title_runs_even_for_different_conversations(self):
++        def generate(*args):
++            self.started.set()
++            self.release.wait(3)
++            return 'Public title'
++        with patch('conversation_title.generate_title', side_effect=generate):
++            self.runner.title(TitleStore(), 'first', 'zh')
++            self.assertTrue(self.started.wait(2))
++            self.runner.title(TitleStore(), 'second', 'zh')
++            self.assertEqual(self.runner.snapshot()['types']['title']['running'], 1)
++            self.assertEqual(self.runner.snapshot()['types']['title']['rejected'], 1)
++            self.release.set()
++            wait_for(lambda: self.held() == 0)
++
++    def test_full_capacity_skips_title_without_claim_or_executor_backlog(self):
++        store = TitleStore()
++        futures = [self.runner._submit(lambda: self.release.wait(3)) for _ in range(2)]
++        self.runner.title(store, 'public', 'zh')
++        self.assertEqual(store.claims, 0)
++        self.assertEqual(store.chat['title_state'], 'pending')
++        self.assertEqual(self.runner.pool._work_queue.qsize(), 0)
++        self.release.set()
++        for future in futures:
++            future.result(2)
++
++    def test_failed_title_has_cooldown_and_retry_is_not_retained_in_memory(self):
++        store = TitleStore()
++        with patch('conversation_title.generate_title', side_effect=RuntimeError('private-provider-body')) as model:
++            self.runner.title(store, 'public', 'zh')
++            wait_for(lambda: self.held() == 0)
++            self.assertEqual(store.chat['title_state'], 'failed')
++            self.runner.title(store, 'public', 'zh')
++            self.assertEqual(model.call_count, 1)
++            self.assertEqual(self.runner.snapshot()['owned_keys'], 0)
++            self.assertEqual(self.runner.snapshot()['types']['title']['failed'], 1)
++
++    def test_manual_title_is_preserved_without_model_call(self):
++        store = TitleStore()
++        store.chat.update(title_state='manual', title='Keep this')
++        with patch('conversation_title.generate_title') as model:
++            self.runner.title(store, 'public', 'zh')
++            model.assert_not_called()
++        self.assertEqual(self.held(), 0)
++        self.assertEqual(store.chat['title'], 'Keep this')
++
++    def test_actual_error_and_business_failure_are_both_counted(self):
++        def failing():
++            raise RuntimeError('private')
++        with self.assertRaises(RuntimeError):
++            self.runner._submit(failing).result(2)
++        self.runner._submit(lambda: {'status': 'failed'}).result(2)
++        wait_for(lambda: self.held() == 0)
++        row = self.runner.snapshot()['types']['request']
++        self.assertEqual(row['submitted'], 2)
++        self.assertEqual(row['exited'], 2)
++        self.assertEqual(row['failed'], 2)
++
++    def test_submit_failure_does_not_leak_reserved_capacity(self):
++        self.runner.pool.shutdown(wait=True)
++        with self.assertRaises(HTTPException):
++            self.runner._submit(lambda: 1)
++        self.assertEqual(self.held(), 0)
++        self.assertEqual(len(self.runner.tokens), 0)
++
++    def test_cancel_request_is_not_reported_as_observed_cancellation(self):
++        from agent_cancel import Cancellation
++        token = Cancellation()
++        def uncooperative():
++            self.started.set()
++            self.release.wait(3)
++            return {'status': 'completed'}
++        future = self.runner._submit(uncooperative, token)
++        self.assertTrue(self.started.wait(1))
++        token.cancel()
++        self.assertEqual(self.held(), 1)
++        self.release.set()
++        future.result(2)
++        wait_for(lambda: self.held() == 0)
++        row = self.runner.snapshot()['types']['request']
++        self.assertEqual(row['cancel_requested'], 1)
++        self.assertEqual(row['cancelled'], 0)
++        self.assertEqual(row['completed'], 1)
++
++
++class SseTitleTests(unittest.IsolatedAsyncioTestCase):
++    async def test_sse_title_starts_after_request_releases_single_worker(self):
++        runner = StreamRunner(workers=1)
++        store = TitleStore()
++        started, release = threading.Event(), threading.Event()
++        def generate(*args):
++            started.set()
++            release.wait(3)
++            return 'Public title'
++        def action(emit):
++            emit('meta', {'turn_id': 'public'})
++            return {'status': 'completed'}
++        try:
++            with patch('conversation_title.generate_title', side_effect=generate):
++                response = await runner.response(action, after_released=lambda: runner.title(store, 'public', 'zh'))
++                frames = b''.join([part async for part in response.body_iterator])
++                self.assertIn(b'event: done', frames)
++                self.assertTrue(await asyncio.to_thread(started.wait, 2))
++                snapshot = runner.snapshot()
++                self.assertEqual(snapshot['types']['request']['running'], 0)
++                self.assertEqual(snapshot['types']['title']['running'], 1)
++                release.set()
++                await asyncio.to_thread(wait_for, lambda: runner.snapshot()['held_slots'] == 0)
++        finally:
++            release.set()
++            await asyncio.to_thread(runner.pool.shutdown, wait=True)
++
++
++class DetachedApiTests(unittest.TestCase):
++    def setUp(self):
++        self.temp = temporary_notes()
++        self.root = self.temp.__enter__()
++        self.environment = patch.dict(os.environ, {'KNOWLEDGE_REVIEW_MODEL_WORKERS': '2',
++            'LLM_API_KEY': 'public', 'LLM_MODEL': 'controlled'})
++        self.environment.start()
++        self.app = create_app(self.root / 'uploads')
++        self.runner = self.app.state.stream_runner
++        self.release = threading.Event()
++        self.started = threading.Event()
++        self.client = TestClient(self.app)
++        self.client.__enter__()
++
++    def tearDown(self):
++        self.release.set()
++        self.runner.pool.shutdown(wait=True)
++        self.client.__exit__(None, None, None)
++        self.environment.stop()
++        shutil.rmtree(self.root / 'uploads', ignore_errors=True)
++        self.temp.__exit__(None, None, None)
++
++    def stats(self):
++        response = self.client.get('/internal/metrics')
++        self.assertEqual(response.status_code, 200)
++        return response.json()
++
++    @staticmethod
++    @job_boundary('outline')
++    def blocked(store, identity, current):
++        # Read the test gates from the store, retaining real persisted attempts.
++        store.start(identity)
++        store._test_started.set()
++        while not store._test_release.wait(.01):
++            checkpoint()
++        with store.practice.transaction() as db:
++            db.execute("UPDATE learning_outlines SET status='completed' WHERE id=?", (identity,))
++
++    def prepare_block(self):
++        store = self.app.state.outline_store
++        store._test_started, store._test_release = self.started, self.release
++        return patch('web_app.run_outline', side_effect=self.blocked)
++
++    def submit(self, request='public-one'):
++        return self.client.post('/api/collections/root/outlines', json={'request_id': request})
++
++    def test_202_returns_while_actual_background_slot_remains_held(self):
++        with self.prepare_block():
++            start = time.monotonic()
++            response = self.submit()
++            self.assertEqual(response.status_code, 202, response.text)
++            self.assertLess(time.monotonic() - start, 1)
++            self.assertTrue(self.started.wait(1))
++            self.assertEqual(self.stats()['types']['background']['running'], 1)
++            self.assertEqual(self.client.get('/healthz').status_code, 200)
++            self.release.set()
++            wait_for(lambda: self.stats()['held_slots'] == 0)
++            self.assertEqual(self.stats()['types']['background']['completed'], 1)
++
++    def test_duplicate_submission_does_not_launch_another_worker(self):
++        with self.prepare_block() as work:
++            first = self.submit()
++            self.assertTrue(self.started.wait(1))
++            replay = self.submit()
++            self.assertEqual(first.json(), replay.json())
++            self.assertEqual(work.call_count, 1)
++            self.assertEqual(self.stats()['held_slots'], 1)
++            self.assertEqual(self.stats()['types']['background']['submitted'], 1)
++            self.release.set()
++            wait_for(lambda: self.stats()['held_slots'] == 0)
++
++    def test_full_pool_rejects_before_creating_background_records(self):
++        futures = [self.runner._submit(lambda: self.release.wait(3)) for _ in range(2)]
++        response = self.submit('must-not-exist')
++        self.assertEqual(response.status_code, 503)
++        self.assertEqual(response.headers['Retry-After'], '1')
++        self.assertEqual(self.app.state.outline_store.list('root'), [])
++        self.assertEqual(self.stats()['types']['background']['rejected'], 1)
++        self.release.set()
++        for future in futures:
++            future.result(2)
++
++    def test_invalid_scope_releases_preparation_reservation(self):
++        response = self.client.post('/api/collections/missing/outlines', json={'request_id': 'public'})
++        self.assertIn(response.status_code, (404, 409))
++        self.assertEqual(self.stats()['held_slots'], 0)
++        self.assertEqual(self.stats()['types']['background']['submitted'], 0)
++
++    def test_pause_cancels_owned_worker_and_preserves_resumable_job(self):
++        with self.prepare_block():
++            identity = self.submit().json()['id']
++            self.assertTrue(self.started.wait(1))
++            self.assertEqual(self.client.post(f'/api/outlines/{identity}/pause').status_code, 200)
++            wait_for(lambda: self.stats()['held_slots'] == 0)
++            self.assertEqual(self.app.state.outline_store.get(identity)['status'], 'paused')
++            self.assertEqual(self.stats()['types']['background']['cancelled'], 1)
++            self.assertEqual(self.stats()['owned_keys'], 0)
++
++    def test_all_eight_submission_endpoints_keep_background_out_of_request_schema(self):
++        names = ('create_outline', 'resume_outline', 'group_outline', 'retry_outline_grouping',
++                 'source_review', 'continue_review', 'generate_route', 'retry_route')
++        endpoints = {route.endpoint.__name__: route.endpoint for route in self.app.routes if hasattr(route, 'endpoint')}
++        for name in names:
++            self.assertTrue(hasattr(endpoints[name], '__wrapped__'), name)
++        schema = self.client.get('/openapi.json').json()
++        for path, item in schema['paths'].items():
++            if 'post' in item and item['post'].get('responses', {}).get('202'):
++                self.assertNotIn('background', [p['name'] for p in item['post'].get('parameters', [])])
++
++
++if __name__ == '__main__':
++    unittest.main()
+--- a/docs/gateway-sse.md
++++ b/docs/gateway-sse.md
+@@ -79,3 +79,10 @@
+ 实际 C++ Gateway → Uvicorn → Agent → 本地可控 OpenAI HTTP 服务完成 10 项链路检查，执行了真实 `read_source`，经过最终结构化校验并保存。首次运行进度约 45 ms 到达，最终结果约 887 ms 到达，证明事件在执行期间输出。供应商响应为公开合成数据，没有外部模型调用，也没有真实 embedding/RAG 或回答质量验收。
+ 
+ 上面12/80/10项为M1.3历史结果。当前M2.3.2普通/ASan同批94项、Python相关115项及工具4项通过；真实隔离链路与容器分别通过同9组取消、同8组指标检查。范围及原始结果见Gateway根目录docs/CANCELLATION.md、README和`evidence/m232-*`。Redis限流在Gateway实现，Python不另建Redis策略。仍未实现逐token输出、所有后台作业治理、Python实际任务指标和前端流式交互；请求范围模型HTTP取消已实现，但不承诺强杀阻塞工具或停止供应商远端算力。
++
++
++2026-10-20 M2.3.3：8个清单/归组/来源核查/路线的后台提交与继续入口，和自动标题，接入原共享模型工作池。先预留槽再创建记录，202返回不释放实际名额；提交者断连/Gateway重启不取消已接受工作。原pause入口先使attempt失效再请求取消模型HTTP，真实Future结束（含连接清理）才释放。嵌套自动核查复用父工作槽与Token；已完成结果保留，原暂停/继续/幂等契约及SQLite结构不变。
++
++标题最多1个；workers>1时至少保留一个未占槽，单worker只在空闲启动且不抢占。忙时跳过无等待队列，失败用已有title_started_at冷却30秒。增加内部GET /internal/metrics，只在进程内聚合request/background/title；Gateway通过受Key保护的GET /agent-metrics固定代理读取。/metrics仍是Gateway本地请求观察，两者不能混同。Agent端口不要直接对不可信网络开放。
++
++相关回归255项（含新增治理16项）、普通/ASan同批103项、真实受控链路与容器各同12组治理检查通过；工具/源码同步最终状态以独立Gateway的evidence/m233-verification-20261020.json为准。原Python不是全量discover，本轮没有外部模型/回答质量/embedding-RAG验收。进程重启计数重置，中断工作沿用原恢复后显式继续，不自动重放。CPU/文件/SQLite/DNS等阻塞不强杀，供应商远端停算未验证，分布式并发/V3仍未实现。详细改动理由、字段、接口和命令见Gateway仓库docs/JOB_GOVERNANCE.md；继续维护其docs/DEVELOPMENT_LOG.md。未自动提交或推送。
+--- a/README.md
++++ b/README.md
+@@ -749,3 +749,10 @@
+ 
+ 
+ 2026-10-19 M2.3.2：网关已接入的JSON/SSE支持请求范围内的模型HTTP取消。复用原同步业务函数，agent_cancel.py以协作式标志和异步httpx传输关闭模型I/O；execute_turn沿用failed保存取消说明，完成后再释放实际工作槽。已提交结果不回滚；CPU/文件/SQLite/DNS阻塞不强杀，供应商远端计算是否停止未经验证。范围内SDK自动重试关闭；范围外CLI和后台任务仍用原传输。后台202/独立标题治理、Python实际任务指标、完整真实embedding/RAG部署仍未完成。调用链、取消边界和复现见docs/gateway-sse.md及独立Gateway仓库docs/CANCELLATION.md；测试结果以Gateway对应日期evidence为准，无自动提交/推送。
++
++
++2026-10-20 M2.3.3：8个清单/归组/来源核查/路线的后台提交与继续入口，和自动标题，接入原共享模型工作池。先预留槽再创建记录，202返回不释放实际名额；提交者断连/Gateway重启不取消已接受工作。原pause入口先使attempt失效再请求取消模型HTTP，真实Future结束（含连接清理）才释放。嵌套自动核查复用父工作槽与Token；已完成结果保留，原暂停/继续/幂等契约及SQLite结构不变。
++
++标题最多1个；workers>1时至少保留一个未占槽，单worker只在空闲启动且不抢占。忙时跳过无等待队列，失败用已有title_started_at冷却30秒。增加内部GET /internal/metrics，只在进程内聚合request/background/title；Gateway通过受Key保护的GET /agent-metrics固定代理读取。/metrics仍是Gateway本地请求观察，两者不能混同。Agent端口不要直接对不可信网络开放。
++
++相关回归255项（含新增治理16项）、普通/ASan同批103项、真实受控链路与容器各同12组治理检查通过；工具/源码同步最终状态以独立Gateway的evidence/m233-verification-20261020.json为准。原Python不是全量discover，本轮没有外部模型/回答质量/embedding-RAG验收。进程重启计数重置，中断工作沿用原恢复后显式继续，不自动重放。CPU/文件/SQLite/DNS等阻塞不强杀，供应商远端停算未验证，分布式并发/V3仍未实现。详细改动理由、字段、接口和命令见Gateway仓库docs/JOB_GOVERNANCE.md；继续维护其docs/DEVELOPMENT_LOG.md。未自动提交或推送。
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -195,3 +195,10 @@
+ 
+ 
+ 2026-10-19 M2.3.2：网关已接入的JSON/SSE支持请求范围内的模型HTTP取消。复用原同步业务函数，agent_cancel.py以协作式标志和异步httpx传输关闭模型I/O；execute_turn沿用failed保存取消说明，完成后再释放实际工作槽。已提交结果不回滚；CPU/文件/SQLite/DNS阻塞不强杀，供应商远端计算是否停止未经验证。范围内SDK自动重试关闭；范围外CLI和后台任务仍用原传输。后台202/独立标题治理、Python实际任务指标、完整真实embedding/RAG部署仍未完成。调用链、取消边界和复现见docs/gateway-sse.md及独立Gateway仓库docs/CANCELLATION.md；测试结果以Gateway对应日期evidence为准，无自动提交/推送。
++
++
++2026-10-20 M2.3.3：8个清单/归组/来源核查/路线的后台提交与继续入口，和自动标题，接入原共享模型工作池。先预留槽再创建记录，202返回不释放实际名额；提交者断连/Gateway重启不取消已接受工作。原pause入口先使attempt失效再请求取消模型HTTP，真实Future结束（含连接清理）才释放。嵌套自动核查复用父工作槽与Token；已完成结果保留，原暂停/继续/幂等契约及SQLite结构不变。
++
++标题最多1个；workers>1时至少保留一个未占槽，单worker只在空闲启动且不抢占。忙时跳过无等待队列，失败用已有title_started_at冷却30秒。增加内部GET /internal/metrics，只在进程内聚合request/background/title；Gateway通过受Key保护的GET /agent-metrics固定代理读取。/metrics仍是Gateway本地请求观察，两者不能混同。Agent端口不要直接对不可信网络开放。
++
++相关回归255项（含新增治理16项）、普通/ASan同批103项、真实受控链路与容器各同12组治理检查通过；工具/源码同步最终状态以独立Gateway的evidence/m233-verification-20261020.json为准。原Python不是全量discover，本轮没有外部模型/回答质量/embedding-RAG验收。进程重启计数重置，中断工作沿用原恢复后显式继续，不自动重放。CPU/文件/SQLite/DNS等阻塞不强杀，供应商远端停算未验证，分布式并发/V3仍未实现。详细改动理由、字段、接口和命令见Gateway仓库docs/JOB_GOVERNANCE.md；继续维护其docs/DEVELOPMENT_LOG.md。未自动提交或推送。
+--- a/docs/development-log.md
++++ b/docs/development-log.md
+@@ -454,3 +454,10 @@
+ 
+ 
+ 2026-10-19 M2.3.2：网关已接入的JSON/SSE支持请求范围内的模型HTTP取消。复用原同步业务函数，agent_cancel.py以协作式标志和异步httpx传输关闭模型I/O；execute_turn沿用failed保存取消说明，完成后再释放实际工作槽。已提交结果不回滚；CPU/文件/SQLite/DNS阻塞不强杀，供应商远端计算是否停止未经验证。范围内SDK自动重试关闭；范围外CLI和后台任务仍用原传输。后台202/独立标题治理、Python实际任务指标、完整真实embedding/RAG部署仍未完成。调用链、取消边界和复现见docs/gateway-sse.md及独立Gateway仓库docs/CANCELLATION.md；测试结果以Gateway对应日期evidence为准，无自动提交/推送。
++
++
++2026-10-20 M2.3.3：8个清单/归组/来源核查/路线的后台提交与继续入口，和自动标题，接入原共享模型工作池。先预留槽再创建记录，202返回不释放实际名额；提交者断连/Gateway重启不取消已接受工作。原pause入口先使attempt失效再请求取消模型HTTP，真实Future结束（含连接清理）才释放。嵌套自动核查复用父工作槽与Token；已完成结果保留，原暂停/继续/幂等契约及SQLite结构不变。
++
++标题最多1个；workers>1时至少保留一个未占槽，单worker只在空闲启动且不抢占。忙时跳过无等待队列，失败用已有title_started_at冷却30秒。增加内部GET /internal/metrics，只在进程内聚合request/background/title；Gateway通过受Key保护的GET /agent-metrics固定代理读取。/metrics仍是Gateway本地请求观察，两者不能混同。Agent端口不要直接对不可信网络开放。
++
++相关回归255项（含新增治理16项）、普通/ASan同批103项、真实受控链路与容器各同12组治理检查通过；工具/源码同步最终状态以独立Gateway的evidence/m233-verification-20261020.json为准。原Python不是全量discover，本轮没有外部模型/回答质量/embedding-RAG验收。进程重启计数重置，中断工作沿用原恢复后显式继续，不自动重放。CPU/文件/SQLite/DNS等阻塞不强杀，供应商远端停算未验证，分布式并发/V3仍未实现。详细改动理由、字段、接口和命令见Gateway仓库docs/JOB_GOVERNANCE.md；继续维护其docs/DEVELOPMENT_LOG.md。未自动提交或推送。
+--- a/docs/product-design-v1.md
++++ b/docs/product-design-v1.md
+@@ -249,3 +249,10 @@
+ 
+ 
+ 2026-10-19 M2.3.2：网关已接入的JSON/SSE支持请求范围内的模型HTTP取消。复用原同步业务函数，agent_cancel.py以协作式标志和异步httpx传输关闭模型I/O；execute_turn沿用failed保存取消说明，完成后再释放实际工作槽。已提交结果不回滚；CPU/文件/SQLite/DNS阻塞不强杀，供应商远端计算是否停止未经验证。范围内SDK自动重试关闭；范围外CLI和后台任务仍用原传输。后台202/独立标题治理、Python实际任务指标、完整真实embedding/RAG部署仍未完成。调用链、取消边界和复现见docs/gateway-sse.md及独立Gateway仓库docs/CANCELLATION.md；测试结果以Gateway对应日期evidence为准，无自动提交/推送。
++
++
++2026-10-20 M2.3.3：8个清单/归组/来源核查/路线的后台提交与继续入口，和自动标题，接入原共享模型工作池。先预留槽再创建记录，202返回不释放实际名额；提交者断连/Gateway重启不取消已接受工作。原pause入口先使attempt失效再请求取消模型HTTP，真实Future结束（含连接清理）才释放。嵌套自动核查复用父工作槽与Token；已完成结果保留，原暂停/继续/幂等契约及SQLite结构不变。
++
++标题最多1个；workers>1时至少保留一个未占槽，单worker只在空闲启动且不抢占。忙时跳过无等待队列，失败用已有title_started_at冷却30秒。增加内部GET /internal/metrics，只在进程内聚合request/background/title；Gateway通过受Key保护的GET /agent-metrics固定代理读取。/metrics仍是Gateway本地请求观察，两者不能混同。Agent端口不要直接对不可信网络开放。
++
++相关回归255项（含新增治理16项）、普通/ASan同批103项、真实受控链路与容器各同12组治理检查通过；工具/源码同步最终状态以独立Gateway的evidence/m233-verification-20261020.json为准。原Python不是全量discover，本轮没有外部模型/回答质量/embedding-RAG验收。进程重启计数重置，中断工作沿用原恢复后显式继续，不自动重放。CPU/文件/SQLite/DNS等阻塞不强杀，供应商远端停算未验证，分布式并发/V3仍未实现。详细改动理由、字段、接口和命令见Gateway仓库docs/JOB_GOVERNANCE.md；继续维护其docs/DEVELOPMENT_LOG.md。未自动提交或推送。

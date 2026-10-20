@@ -1,0 +1,69 @@
+{
+  "checks_passed": 10,
+  "checks": [
+    "real healthz through readiness without model calls",
+    "incremental actual Agent read_source and final structured model HTTP flow",
+    "result event equals committed SQLite public turn",
+    "completed request replay does not rerun tools or model",
+    "idempotency conflict remains HTTP 409 before SSE headers",
+    "provider failure emits safe error/done and persists failed turn",
+    "four real running stream tasks reject fifth with HTTP 503",
+    "client disconnect retains slot until synchronous work exits",
+    "blocked model requests leave health checks responsive",
+    "slots recover after actual work completion"
+  ],
+  "observations": {
+    "events": [
+      {
+        "event": "meta",
+        "phase": null,
+        "ms": 25
+      },
+      {
+        "event": "progress",
+        "phase": "context",
+        "ms": 45
+      },
+      {
+        "event": "progress",
+        "phase": "agent_model",
+        "ms": 65
+      },
+      {
+        "event": "progress",
+        "phase": "tool",
+        "ms": 450
+      },
+      {
+        "event": "progress",
+        "phase": "tool",
+        "ms": 450
+      },
+      {
+        "event": "progress",
+        "phase": "agent_model",
+        "ms": 450
+      },
+      {
+        "event": "progress",
+        "phase": "final_model",
+        "ms": 571
+      },
+      {
+        "event": "result",
+        "phase": null,
+        "ms": 754
+      },
+      {
+        "event": "done",
+        "phase": null,
+        "ms": 754
+      }
+    ],
+    "controlled_model_http_requests": 19
+  },
+  "source_unchanged": true,
+  "runtime_source_files": 62,
+  "external_model_calls": false,
+  "model_quality_tested": false
+}

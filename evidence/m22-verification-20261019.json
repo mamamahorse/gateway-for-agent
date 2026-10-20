@@ -1,0 +1,100 @@
+{
+  "milestone": "M2.2 local admission and shared selected JSON/SSE workers",
+  "started": "2026-10-18",
+  "completed": "2026-10-19",
+  "status": "passed",
+  "native": {
+    "test_counts": [
+      23,
+      22,
+      16,
+      11
+    ],
+    "unique_methods": 72,
+    "same_methods_passed_asan_ubsan": true,
+    "latest_version_header_fix_targeted_checks_per_build": 11,
+    "queue_disconnects": {
+      "count": 100,
+      "fds_before": 11,
+      "fds_after": 11
+    },
+    "capacity": {
+      "active": 2,
+      "fifo_queued": 8,
+      "overload_status": 503
+    },
+    "full_suite_date": "2026-10-18",
+    "targeted_final_date": "2026-10-19"
+  },
+  "python": {
+    "new_admission_tests": 7,
+    "existing_sse_tests": 12,
+    "original_related_regressions": 80,
+    "integration_tools_tests": 4,
+    "original_project_full_suite": false
+  },
+  "real_agent": {
+    "checks_passed": 8,
+    "checks": [
+      "real Agent/Redis readiness",
+      "JSON fills two proxy slots; SSE queues while light traffic remains responsive",
+      "JSON proxy total deadlines release proxy permits",
+      "queued SSE reaches full Python worker guard; timed-out JSON work retains real slots",
+      "new JSON also rejected by the same Python worker guard",
+      "rejected JSON/SSE create no turn or model work",
+      "timed-out HTTP requests can still commit once: cancellation remains deferred",
+      "actual completion returns shared capacity and a new SSE commits successfully"
+    ],
+    "observations": {
+      "blocked_model_calls_before_release": 2,
+      "sse_rejected_while_real_workers_busy": 503,
+      "saved_turns_after_http_timeouts": 2
+    },
+    "source_unchanged": true,
+    "external_model_calls": false,
+    "full_cancellation_implemented": false
+  },
+  "containers": {
+    "initial_create_checks": 6,
+    "replacement_restore_checks": 5,
+    "final_restart_restore_checks": 5,
+    "shared_rate_burst": {
+      "arrivals": 40,
+      "statuses": {
+        "200": 7,
+        "429": 33
+      },
+      "elapsed_seconds": 0.251,
+      "redis_counter": "7"
+    },
+    "final_report": "evidence/m22-compose-final-20261019.json",
+    "cleanup_verified": true,
+    "images_retained": true,
+    "full_container_concurrency_suite_run": false
+  },
+  "source_preservation": "evidence/m22-source-preservation-20261019.json",
+  "not_implemented": [
+    "full Python/model cancellation",
+    "all background 202/title governance",
+    "distributed concurrency permits",
+    "metrics endpoint",
+    "full real-model embedding/RAG deployment"
+  ],
+  "external_model_calls": false,
+  "source_hashes": {
+    "CMakeLists.txt": "71a93557292e63e3f7a8092ae5200987b649b1476a224a6933dc4a1985febe24",
+    "src/admission.cpp": "2abc0843ecc6825aec033a1a640a288245dfa100bf71bcc622cbbbb5b9c17c81",
+    "src/admission.hpp": "f605ce26ea40978acfe5c220b3c860df10e7be036e5d443f7f1c5c718d3021a2",
+    "src/gateway.cpp": "1a2a6cd08855a73350ef0b84c91a2e4eafcf66e40e4dc22a5b50845a12bf2f53",
+    "src/gateway.hpp": "73043c80a02139ecdffe3bfef22b444cab780317782120ebe386c6f1f3cf97f8",
+    "src/main.cpp": "1c569d05eebc92e4a385ce84304714c3cde7797eff4a63758b676c70aff8b5a9",
+    "src/policy.cpp": "fc7549f115cbc1892e2c25e77a5916b6e8f492ee945aad8eeae2a69608ab2cc4",
+    "src/policy.hpp": "a7fdf0637204309869e5fc7f3e44109d00f41cf07ce23328c2dcfb0f5d1d08cb",
+    "src/rate_limit_script.hpp.in": "21228d00d3c579bc408533173409ab0982650280d7b0a4c8e3c3ec5d962b450f",
+    "src/redis_limiter.cpp": "afe274d6b10e4fe51d1c2786b8965619a07431cc2e6fd886e820cfdfb43550f0",
+    "src/redis_limiter.hpp": "24c5bc10690e184b0ecef27c22f187b7325d38bc490096e629b882d4f5b41714",
+    "scripts/rate_limit.lua": "431a29eccb4a94d280576b333eaa8d650f5b86a0c9eda4a5ef522e643728aade",
+    "deploy/compose.yaml": "f0ce939a59db45920f4197fb528e8d09cc2f17ebbadfd8236411b248d7a4d3c0",
+    "deploy/Dockerfile.gateway": "d59648d434d1dcea9fa75aa847e8f297ec2fb9ba2f752b593b910c158599a592"
+  }
+}

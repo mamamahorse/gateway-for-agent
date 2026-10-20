@@ -1,0 +1,66 @@
+{
+  "phase": "create",
+  "checks_passed": 6,
+  "checks": [
+    "container gateway readiness against agent healthz",
+    "published gateway enforces API key",
+    "multipart Markdown import persisted in container data volume",
+    "container Agent executes read_source and returns committed SSE result",
+    "container SSE progress arrives before final result",
+    "SQLite public turn equals saved result without duplicate rows"
+  ],
+  "state": {
+    "conversation_id": "bc2d74091d234e21a620665646ea6aff",
+    "document_id": "upload-bbd3b20551294628a8c2f130c8923950",
+    "payload": {
+      "document_ids": [
+        "upload-bbd3b20551294628a8c2f130c8923950"
+      ],
+      "focus_document_id": "upload-bbd3b20551294628a8c2f130c8923950",
+      "focus_source_id": "a7611e660849178f403e8e03b70b103a17d6cbfa941568222ef9a7abb946a472",
+      "question": "Explain public source",
+      "request_id": "compose-public"
+    },
+    "turn_sha256": "6470d9c0d313d6619996bc051b092baede8928419ceaa78ba7a2992df88a9832",
+    "events": [
+      {
+        "event": "meta",
+        "ms": 31
+      },
+      {
+        "event": "progress",
+        "ms": 52
+      },
+      {
+        "event": "progress",
+        "ms": 94
+      },
+      {
+        "event": "progress",
+        "ms": 590
+      },
+      {
+        "event": "progress",
+        "ms": 590
+      },
+      {
+        "event": "progress",
+        "ms": 590
+      },
+      {
+        "event": "progress",
+        "ms": 718
+      },
+      {
+        "event": "result",
+        "ms": 911
+      },
+      {
+        "event": "done",
+        "ms": 911
+      }
+    ]
+  },
+  "external_model_calls": false,
+  "embedding_search_tested": false
+}

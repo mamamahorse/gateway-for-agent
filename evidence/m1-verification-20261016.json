@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-16",
+  "milestone": "M1.1",
+  "platform": "WSL2 Ubuntu 24.04.4",
+  "compiler": "GCC 13.3.0",
+  "cmake": "3.28.3",
+  "boost": "1.83.0",
+  "cpp_standard": 20,
+  "normal_black_box_tests": 23,
+  "same_tests_with_asan_ubsan": 23,
+  "real_backend_smoke_checks": 7,
+  "model_semantics_verified": false,
+  "sse_implemented": false,
+  "redis_governance_implemented": false,
+  "compose_deployed": false,
+  "source_sha256": {
+    "CMakeLists.txt": "264a60bf98836dadf4a823806be4fe5863f6722e8bc7cc806a6b6e328234886b",
+    "src/gateway.cpp": "519f0c8fcc1a5213e9ee2ae9b72847094cea0414bcc65984758b2d20fd5175be",
+    "src/gateway.hpp": "1a1a7270e88e6ebca0dd2b7266433ee9c482f41d07b123bdf499cd5baf4a52b4",
+    "src/main.cpp": "2b97580256ad5138a10bf75e42a66bcd51205bfdd5619933b43700565d24d24e",
+    "src/policy.cpp": "9d4ed95c501eec357f3012dd18b15530b2bc398c258d2846b7acc7c12352a668",
+    "src/policy.hpp": "f3af26b02b6ae6a4e67d3f8fd4b14bc9ad13cd25ec9f65699f863a3badd4b4ec",
+    "tests/fake_agent.py": "b9cc144fef5d4ddd489853ab5b26d16fa6df830f7500f56a801bbeb0d6eacc95",
+    "tests/knowledge_review_smoke.py": "f4b8b8e61ce8cd5525e0ccb26d588146f070be2c7b30a9d7623fde8052957119",
+    "tests/test_proxy.py": "40eb7b42c976c77e19c3aa22da4ddd1a0c9f5166bbf4f466e0f5f622f6b3f23d"
+  }
+}

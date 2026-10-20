@@ -1,0 +1,21 @@
+{
+  "checks_passed": 8,
+  "checks": [
+    "real Agent/Redis readiness",
+    "JSON fills two proxy slots; SSE queues while light traffic remains responsive",
+    "JSON proxy total deadlines release proxy permits",
+    "queued SSE reaches full Python worker guard; timed-out JSON work retains real slots",
+    "new JSON also rejected by the same Python worker guard",
+    "rejected JSON/SSE create no turn or model work",
+    "timed-out HTTP requests can still commit once: cancellation remains deferred",
+    "actual completion returns shared capacity and a new SSE commits successfully"
+  ],
+  "observations": {
+    "blocked_model_calls_before_release": 2,
+    "sse_rejected_while_real_workers_busy": 503,
+    "saved_turns_after_http_timeouts": 2
+  },
+  "source_unchanged": true,
+  "external_model_calls": false,
+  "full_cancellation_implemented": false
+}

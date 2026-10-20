@@ -1,0 +1,336 @@
+{
+  "version": "M2.3.3",
+  "files": [
+    {
+      "path": "web_app.py",
+      "before_sha256": "b95bf96cdd65d0dc810826fbf9489b6ffa1743bcd41848b2a2fc53b31b010a23",
+      "after_sha256": "01cea50da62fdcb6251197d20ebb311f761aff989ffdd25395937b11a71effdf",
+      "asset": "runtime/web_app.py",
+      "upgrades": [
+        {
+          "before_sha256": "1d512df9d263e61bc56bc940676cc979bb7c83799f629ac7686c010078a13915"
+        },
+        {
+          "before_sha256": "cac8305f0e05d41b3fb38d2d3d285df9b3e47dca1920ab230c7a8fab293cc17d"
+        },
+        {
+          "before_sha256": "1a43137723ac7d2415ea1261c0181f7fe800e84d21d50f56d0efe9780a3c081b"
+        }
+      ]
+    },
+    {
+      "path": "agent_loop.py",
+      "before_sha256": "8f4e1780f83be050c56ccee14da8078c989a7fe40979186eb5be32a8d84d8222",
+      "after_sha256": "3f4d121fad79987f0695e59785e1c4ad63f4de5fcadf2fff3a5dc51434859fe5",
+      "asset": "runtime/agent_loop.py",
+      "upgrades": [
+        {
+          "before_sha256": "09cde08a8f8f4e926f6cee2c1a4f16c4fd82aa895cab3f170160bda6a2385ebe"
+        },
+        {
+          "before_sha256": "3f4d121fad79987f0695e59785e1c4ad63f4de5fcadf2fff3a5dc51434859fe5"
+        }
+      ]
+    },
+    {
+      "path": "agent_stream.py",
+      "before_sha256": null,
+      "after_sha256": "b513f1bfe9f8fcb4e7bb23ca18a0ef5df2428e46c0b45bb005363b4ce6d6cd72",
+      "asset": "agent_stream.py",
+      "upgrades": [
+        {
+          "before_sha256": "96bbbcfcea83c2d0f71045d735990e9fa06cb107a44dec03c5537777c29dd7cc"
+        },
+        {
+          "before_sha256": "d87ed0a3faeb24e1ddb3f91befcfb5de801fef179cff43a4fe5aeb010653abce"
+        },
+        {
+          "before_sha256": "6dcba317ad07791030ba23f4468713bf1a751c17bcbff64945c3b2063b49b959"
+        },
+        {
+          "before_sha256": "fc055a1d5abde405e96f1afa6e0a4d4b7ecf0360287d11529722b1b185aa8333"
+        },
+        {
+          "before_sha256": "aee46ad37428cff3f2246d623940d758554505fd3c922be98be3cd0411851a4b"
+        },
+        {
+          "before_sha256": "a700826567c691162099c847b813a389d394a9f7bf9e2f0a4790b540df56c439"
+        },
+        {
+          "before_sha256": "dfc846cf6d667cce75545ad51d8f89c0501668d6489b9dad1a17f2d8c4d3afa9"
+        },
+        {
+          "before_sha256": "e973815e465030a5fd8a70d700a590d10f021a015badc52cea4a501b7546e2c3"
+        },
+        {
+          "before_sha256": "b36c3e3f07f1237e7b5b3d68f3abf033317dee87bd1f68e7f3afef3f612929a9"
+        }
+      ]
+    },
+    {
+      "path": "test_agent_sse.py",
+      "before_sha256": null,
+      "after_sha256": "68c04f76832ad661df896c38e62550f9ab36f3441ecc55ef0e31b716c492ae4f",
+      "asset": "test_agent_sse.py"
+    },
+    {
+      "path": "docs/gateway-sse.md",
+      "before_sha256": null,
+      "after_sha256": "42adf4e5694b4eb3a7ba76889f88fa579bbbc0d414078f441bee61801ec4f2bc",
+      "asset": "README.md",
+      "upgrades": [
+        {
+          "before_sha256": "817444b64d1bfc1f6ea6c32c011c278b3306ffd3427beee809869982f37bc1a3"
+        },
+        {
+          "before_sha256": "3f7547bbd6a63140f90f2d1d5682a834ce9e42d0b17e35061ad497ff9887b2b9"
+        },
+        {
+          "before_sha256": "26fc3f1797d8304bb56a4de615e9a89ef38c09e0029301fbc35ce38c2287d076"
+        },
+        {
+          "before_sha256": "2fa1c566e9aea2c387bf01e43d6ff8daa299288dd45104189449a1db9a3c39e2"
+        }
+      ]
+    },
+    {
+      "path": "README.md",
+      "before_sha256": "46ef847ec98372b8fcf6d5c9d4d7205f73c0dd3000d5a71a2693faaeb8427130",
+      "after_sha256": "3f8ba05e898d38b91afa9390659b0243d191f6b9212274096373ab606ab2daf1",
+      "asset": "runtime/README.md",
+      "upgrades": [
+        {
+          "before_sha256": "8beeca306c5132f05e34cf1e57084ec568d8171044769382c77d9f54923f8a56"
+        },
+        {
+          "before_sha256": "bc8eec4d7a95ee8f3a738bdda7ae8f2e81a247c3b2536b5eb681a374fe8f5577"
+        },
+        {
+          "before_sha256": "9a9961686ced8a3b1214f23175dae17b6336f01a7338914f51c5cf9a1c4815de"
+        }
+      ]
+    },
+    {
+      "path": "AGENTS.md",
+      "before_sha256": "fa94ce2f8745021544a55f75367cf082e2d6bc9bee3170fef85fb52d3c202940",
+      "after_sha256": "809b28da5398c5f0d6b572b6af5a41b249ce2b43eddb7d9069f460b1b167289d",
+      "asset": "runtime/AGENTS.md",
+      "upgrades": [
+        {
+          "before_sha256": "f9f0d54ba258bb51c8907038a5c6e32761c45bbd171350921d885d09555de024"
+        },
+        {
+          "before_sha256": "4749303e0f3a5556e22294dbcfeffaff795adcf15dea1c53e474cd8ffd4ef28a"
+        },
+        {
+          "before_sha256": "e07fb36ed92c7a9229169f874d05cff444dc420fcc333f619e01505e2704721a"
+        }
+      ]
+    },
+    {
+      "path": "docs/development-log.md",
+      "before_sha256": "b2c37b5de73f1899ebd6d0267f179c6fa06577674a2734a31e6d9bd5aa4b1635",
+      "after_sha256": "a2d05ebd04913c686722420dc45e0c7b51e5fefc76cd7eccad34b1089eb6d980",
+      "asset": "runtime/docs/development-log.md",
+      "upgrades": [
+        {
+          "before_sha256": "a0c3e13f9ccc266e22b07d86887ff0a781e512b20bc7d2ad2540f5884a0bd469"
+        },
+        {
+          "before_sha256": "899be7ec904a5e129f72209f7c253d1315ff72f70e909703baec266448e0bdcf"
+        },
+        {
+          "before_sha256": "182e410eea60573dd48841c13b6a50faf0c1b4601010f1c5ff6b65db81d3ecca"
+        }
+      ]
+    },
+    {
+      "path": "docs/product-design-v1.md",
+      "before_sha256": "823d8bcd7e07265b984e3f1a061d435aaddf708dded66538b319f819834cb487",
+      "after_sha256": "82e8e3137a098ba45e3f5dfb95615a75198acfb2bf6e6c48e823dd06f7203e80",
+      "asset": "runtime/docs/product-design-v1.md",
+      "upgrades": [
+        {
+          "before_sha256": "fdfc5287cbed3640f8e97e557e0185f05c02f47a424e567948402050ddf7c616"
+        },
+        {
+          "before_sha256": "a633d092b9637204cc8f9bc4023f62a38d65307ca33d6a4ba3a7fbaa2be457cb"
+        },
+        {
+          "before_sha256": "15f12da9eda791eff10e0c75a14030a8cd046ce20174ed7d3a65d78c43ae3e3e"
+        }
+      ]
+    },
+    {
+      "path": "test_agent_admission.py",
+      "asset": "test_agent_admission.py",
+      "before_sha256": null,
+      "after_sha256": "d136f8708ac2fffc99d188499911e17edaec1d7bc43ed1c90f5da921fb89a78a"
+    },
+    {
+      "path": "model_client.py",
+      "before_sha256": "fb052d806e5380c2272a7547a9b86d145bcaed1fb94e932834f0324e01f8f732",
+      "after_sha256": "22e0e8fd6eec5c77b0768f91ac86262e75b65fc615f751d800de0e35f972c50f",
+      "asset": "runtime/model_client.py",
+      "upgrades": [
+        {
+          "before_sha256": "22e0e8fd6eec5c77b0768f91ac86262e75b65fc615f751d800de0e35f972c50f"
+        }
+      ]
+    },
+    {
+      "path": "practice_model.py",
+      "before_sha256": "d72072177e24b1077d6bfa7b83a3789d01684324e69bc93e21d139e2ddc0feb5",
+      "after_sha256": "72ba4fe5f63bbcba08f299107872985630142e0f7582ba2a00a8b793faafb107",
+      "asset": "runtime/practice_model.py",
+      "upgrades": [
+        {
+          "before_sha256": "72ba4fe5f63bbcba08f299107872985630142e0f7582ba2a00a8b793faafb107"
+        }
+      ]
+    },
+    {
+      "path": "conversation_context.py",
+      "before_sha256": "dba6c59bf5325a4e5ce5cf00f06e7a8224204e1dffcf1fede3a03507ce35b593",
+      "after_sha256": "77bc582dbf9fc56aea47a11bcd39b597921908bf4ba582813c95e78281cf6980",
+      "asset": "runtime/conversation_context.py",
+      "upgrades": [
+        {
+          "before_sha256": "77bc582dbf9fc56aea47a11bcd39b597921908bf4ba582813c95e78281cf6980"
+        }
+      ]
+    },
+    {
+      "path": "pdf_vision.py",
+      "before_sha256": "b5aaf716d6ebaa4f62d852de05c43809d09d5e4086a7b91ba68115b407d3a3be",
+      "after_sha256": "0993df8aba660cbe504a09aecd7f7830b2b005ad8e081fc8dfc4aa5b22ec148f",
+      "asset": "runtime/pdf_vision.py",
+      "upgrades": [
+        {
+          "before_sha256": "0993df8aba660cbe504a09aecd7f7830b2b005ad8e081fc8dfc4aa5b22ec148f"
+        }
+      ]
+    },
+    {
+      "path": "conversation_title.py",
+      "before_sha256": "2c1a2a33586edfdcc0fb44251a59fd34fba60c70131c970cdae82fb3435ed6a5",
+      "after_sha256": "2e381ed99d3b815b390bc45c51793ad1821658635c6dacc3f8d014dca1ab0b79",
+      "asset": "runtime/conversation_title.py",
+      "upgrades": [
+        {
+          "before_sha256": "67b70c0b373659e89ad1e6991bb12f60e22cbe0f68c6ccd86f5a43f5196868c2"
+        },
+        {
+          "before_sha256": "bc65431ea6cc1d1df3aa64528835d332b3e078977a3541be92652d7f07657ea9"
+        }
+      ]
+    },
+    {
+      "path": "agent_cancel.py",
+      "before_sha256": null,
+      "after_sha256": "746beb6421928c65519da84376d1533f686483fcf4dc726930c749e341284928",
+      "asset": "agent_cancel.py",
+      "upgrades": [
+        {
+          "before_sha256": "5768306c9bcc0a9de30422644a86e63643d19d978e0c17cb6744519bdecc5615"
+        }
+      ]
+    },
+    {
+      "path": "test_agent_cancellation.py",
+      "asset": "test_agent_cancellation.py",
+      "before_sha256": null,
+      "after_sha256": "60692dfb6b8ad50ec7a30778d64f95d7477a853200e652b70646b90a9270c3ec",
+      "upgrades": [
+        {
+          "before_sha256": "2193757fdac280fcfcfd7615d3638537cab5e2d90bf31198987ff39f7603b51a"
+        }
+      ]
+    },
+    {
+      "path": "outline_service.py",
+      "before_sha256": "a137673bda2ca42aac84aeca6364dc1c80b63eb57d46c0670dcdc6a99a5791c1",
+      "after_sha256": "5f5312a99f3c45d429d8ddbea8fec7cbd00301684a2d07f247fe679094201b8c",
+      "asset": "runtime/outline_service.py",
+      "upgrades": []
+    },
+    {
+      "path": "outline_grouping.py",
+      "before_sha256": "ae820b78bb6d295bdeb96a3f0b8effed0ba10f2a3d6932f44be5c05a10c1630f",
+      "after_sha256": "390650c9ce7e0afca1328467d39ff5fc480394f715f3b89c03714453d29fec2c",
+      "asset": "runtime/outline_grouping.py",
+      "upgrades": []
+    },
+    {
+      "path": "outline_review.py",
+      "before_sha256": "63553280b9646364c53891cc0ac437fa857abad64357699f00b2af644075e152",
+      "after_sha256": "4c117888f1125cc54dd6e44ab31bf762bf95b3cef2c36d905f9272235779d288",
+      "asset": "runtime/outline_review.py",
+      "upgrades": []
+    },
+    {
+      "path": "outline_routes.py",
+      "before_sha256": "acbadcde3aca22d572a0b552212778d5b863a86895e02d88e756eee84be8e6ee",
+      "after_sha256": "684d40cfd1a227798c2ad4f12b74ece5d1690d9d9f49ed01e1072b6a1f58b989",
+      "asset": "runtime/outline_routes.py",
+      "upgrades": []
+    },
+    {
+      "path": "outline_store.py",
+      "before_sha256": "35eac73a2fc38cc8e1aaaf72768eddb6ecf4991c60fdc90c27c1cd6c57946510",
+      "after_sha256": "c8bd4b20699543fd31e3e6f9ce8a80b80c0bdf042df3b65bc485291a357596a4",
+      "asset": "runtime/outline_store.py",
+      "upgrades": []
+    },
+    {
+      "path": "test_outlines.py",
+      "before_sha256": "06bfc324505bd4fc025634d1a7630ceffe5f3b3724d24e25319d3c70705248d6",
+      "after_sha256": "ee5da2a0831efcd0325b50bec223e4a765db4e1e156ee1d216ccdd8d03291331",
+      "asset": "runtime/test_outlines.py",
+      "upgrades": []
+    },
+    {
+      "path": "test_outline_context.py",
+      "before_sha256": "f04a9c4087a194e9b146b0113b8fce87f10dde76b818dfc5777b8e72c4ad2ecd",
+      "after_sha256": "10ceda32ac39fd8176da1fd554606071420fd4e8c7534888e85ed07d5b3785e9",
+      "asset": "runtime/test_outline_context.py",
+      "upgrades": []
+    },
+    {
+      "path": "test_outline_groups.py",
+      "before_sha256": "a0b567c5baa0e73c827c6ba0dbe18e9de5d8c900e6c40e3b8c3210257ad77278",
+      "after_sha256": "5bc0561d0a7da7fc078841d5cd2147da707473a9a81cd174d3bf53fdf322c475",
+      "asset": "runtime/test_outline_groups.py",
+      "upgrades": []
+    },
+    {
+      "path": "test_outline_routes.py",
+      "before_sha256": "c588d93c0ac11211e93829aa808257d9bdebfebff986a0880257dc640a08cf99",
+      "after_sha256": "e41acc5404f1f42fece09038a4147766dae153330f8b0573806185f7419efdc2",
+      "asset": "runtime/test_outline_routes.py",
+      "upgrades": []
+    },
+    {
+      "path": "agent_work.py",
+      "before_sha256": null,
+      "after_sha256": "43b8947e65bf8ec558af482cf0c123335e6ae69240153764ecc15cc8ea570161",
+      "asset": "agent_work.py",
+      "upgrades": [
+        {
+          "before_sha256": "bf932ee68df8768e9f9beab919043b80149536b45fb8b6998ab111a25494a656"
+        }
+      ]
+    },
+    {
+      "path": "test_agent_governance.py",
+      "before_sha256": null,
+      "after_sha256": "4f8d6382dff3f9e56a5121387ddf78a274f5faa652e5000b8480ef1a9b1d41dd",
+      "asset": "test_agent_governance.py",
+      "upgrades": [
+        {
+          "before_sha256": "a1691f5de981d5bda387816daaf25c956ec98ed98a8ec9fddb976f06ada1d2b7"
+        }
+      ]
+    }
+  ]
+}

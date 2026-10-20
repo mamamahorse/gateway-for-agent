@@ -1,0 +1,65 @@
+{
+  "milestone": "M2.3.1 local metrics and bounded business failure observation",
+  "date": "2026-10-19",
+  "status": "passed",
+  "m23_complete": false,
+  "native": {
+    "test_counts": [
+      23,
+      22,
+      16,
+      11,
+      15
+    ],
+    "unique_methods": 87,
+    "same_methods_passed_asan_ubsan": true,
+    "metrics_test_methods": 15,
+    "snapshot_polling": {
+      "count": 100,
+      "fds_before": 9,
+      "fds_after": 9
+    },
+    "large_sse_bytes_preserved": 2097264
+  },
+  "real_agent": {
+    "checks_passed": 8,
+    "report": "evidence/m231-real-agent-20261019.json",
+    "business_failure_delta": 2
+  },
+  "containers": {
+    "report": "evidence/m231-compose-verification-20261019.json",
+    "same_metrics_checks_passed": 8,
+    "business_create_checks": 6,
+    "gateway_replacement_restore_checks": 5,
+    "cleanup_verified": true,
+    "images_retained": true
+  },
+  "source_preservation": "evidence/m231-source-preservation-20261019.json",
+  "original_python_suite_rerun": false,
+  "external_model_calls": false,
+  "remaining": [
+    "full Python/model cancellation",
+    "all background 202/title governance",
+    "Python actual task metrics",
+    "distributed concurrency permits",
+    "complete real-model embedding/RAG deployment"
+  ],
+  "source_hashes": {
+    "CMakeLists.txt": "a86a474c0005347ad5110e3b2ec8d113a79a9e3a98e305d0b306130acfec588c",
+    "src/admission.cpp": "2abc0843ecc6825aec033a1a640a288245dfa100bf71bcc622cbbbb5b9c17c81",
+    "src/admission.hpp": "f605ce26ea40978acfe5c220b3c860df10e7be036e5d443f7f1c5c718d3021a2",
+    "src/gateway.cpp": "5d404e3cab7091cf266cd44e2da042a132cb0c0c93eac1f03cb447525cef6afd",
+    "src/gateway.hpp": "73043c80a02139ecdffe3bfef22b444cab780317782120ebe386c6f1f3cf97f8",
+    "src/main.cpp": "1c569d05eebc92e4a385ce84304714c3cde7797eff4a63758b676c70aff8b5a9",
+    "src/metrics.cpp": "d5f972f6447c2e1bf028bb67adb59c092cb14552382796bdad1be8d84777adf0",
+    "src/metrics.hpp": "06cf8b342e0fb61ed1a54d3024c48de29d239d904f7a72829f94a12f4d9228f6",
+    "src/policy.cpp": "fc7549f115cbc1892e2c25e77a5916b6e8f492ee945aad8eeae2a69608ab2cc4",
+    "src/policy.hpp": "a7fdf0637204309869e5fc7f3e44109d00f41cf07ce23328c2dcfb0f5d1d08cb",
+    "src/rate_limit_script.hpp.in": "21228d00d3c579bc408533173409ab0982650280d7b0a4c8e3c3ec5d962b450f",
+    "src/redis_limiter.cpp": "afe274d6b10e4fe51d1c2786b8965619a07431cc2e6fd886e820cfdfb43550f0",
+    "src/redis_limiter.hpp": "24c5bc10690e184b0ecef27c22f187b7325d38bc490096e629b882d4f5b41714",
+    "scripts/rate_limit.lua": "431a29eccb4a94d280576b333eaa8d650f5b86a0c9eda4a5ef522e643728aade",
+    "deploy/compose.yaml": "f0ce939a59db45920f4197fb528e8d09cc2f17ebbadfd8236411b248d7a4d3c0",
+    "deploy/Dockerfile.gateway": "d59648d434d1dcea9fa75aa847e8f297ec2fb9ba2f752b593b910c158599a592"
+  }
+}

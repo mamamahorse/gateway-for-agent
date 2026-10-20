@@ -1,0 +1,1328 @@
+{
+  "source_root": "E:\\agentic project\\knowledge-review",
+  "scope": "Static source audit; no imports, model calls, DB reads or runtime tests.",
+  "route_scope": "Explicit decorators only; excludes framework-generated OpenAPI and static mounts.",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/retrieval-review",
+      "status_code": 200,
+      "file": "retrieval_review_app.py",
+      "line": 68,
+      "function": "page",
+      "async": false,
+      "parameters": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/retrieval-benchmark",
+      "status_code": 200,
+      "file": "retrieval_review_app.py",
+      "line": 72,
+      "function": "benchmarks",
+      "async": false,
+      "parameters": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/retrieval-benchmark/{identity}",
+      "status_code": 200,
+      "file": "retrieval_review_app.py",
+      "line": 76,
+      "function": "overview",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "GET",
+      "path": "/api/retrieval-benchmark/{identity}/queries/{query_id}",
+      "status_code": 200,
+      "file": "retrieval_review_app.py",
+      "line": 87,
+      "function": "detail",
+      "async": false,
+      "parameters": "identity: str, query_id: str"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/retrieval-benchmark/{identity}/queries/{query_id}",
+      "status_code": 200,
+      "file": "retrieval_review_app.py",
+      "line": 101,
+      "function": "save",
+      "async": false,
+      "parameters": "identity: str, query_id: str, request: SaveReview"
+    },
+    {
+      "method": "POST",
+      "path": "/api/retrieval-benchmark/{identity}/freeze",
+      "status_code": 200,
+      "file": "retrieval_review_app.py",
+      "line": 105,
+      "function": "freeze",
+      "async": false,
+      "parameters": "identity: str, request: Freeze"
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 437,
+      "function": "home",
+      "async": false,
+      "parameters": "request: Request"
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 443,
+      "function": "documents",
+      "async": false,
+      "parameters": "collection_id: str='root'"
+    },
+    {
+      "method": "GET",
+      "path": "/api/collections",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 450,
+      "function": "collections",
+      "async": false,
+      "parameters": ""
+    },
+    {
+      "method": "POST",
+      "path": "/api/collections",
+      "status_code": 201,
+      "file": "web_app.py",
+      "line": 454,
+      "function": "create_collection",
+      "async": false,
+      "parameters": "payload: CollectionRequest"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/collections/{identity}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 458,
+      "function": "rename_collection",
+      "async": false,
+      "parameters": "identity: str, payload: CollectionRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/collections/{identity}/move",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 462,
+      "function": "move_collection",
+      "async": false,
+      "parameters": "identity: str, payload: CollectionAssignment"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/collections/{identity}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 466,
+      "function": "remove_collection",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/documents/{identity}/collection",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 470,
+      "function": "move_document",
+      "async": false,
+      "parameters": "identity: str, payload: CollectionAssignment"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/learning/{identity}/collection",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 475,
+      "function": "move_plan_item",
+      "async": false,
+      "parameters": "identity: str, payload: CollectionAssignment"
+    },
+    {
+      "method": "POST",
+      "path": "/api/collections/{identity}/practice",
+      "status_code": 201,
+      "file": "web_app.py",
+      "line": 479,
+      "function": "collection_practice",
+      "async": false,
+      "parameters": "identity: str, payload: CollectionPracticeRequest"
+    },
+    {
+      "method": "GET",
+      "path": "/api/collections/{identity}/outlines",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 514,
+      "function": "outline_list",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/collections/{identity}/outlines",
+      "status_code": 202,
+      "file": "web_app.py",
+      "line": 527,
+      "function": "create_outline",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineRequest, background: BackgroundTasks"
+    },
+    {
+      "method": "GET",
+      "path": "/api/outlines/{identity}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 544,
+      "function": "read_outline",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outlines/{identity}/resume",
+      "status_code": 202,
+      "file": "web_app.py",
+      "line": 548,
+      "function": "resume_outline",
+      "async": false,
+      "parameters": "identity: str, background: BackgroundTasks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outlines/{identity}/pause",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 562,
+      "function": "pause_outline",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/outline-candidates/{identity}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 566,
+      "function": "update_outline_candidate",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineEditRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outlines/{identity}/grouping",
+      "status_code": 202,
+      "file": "web_app.py",
+      "line": 570,
+      "function": "group_outline",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineGroupRequest, background: BackgroundTasks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline-group-runs/{identity}/retry",
+      "status_code": 202,
+      "file": "web_app.py",
+      "line": 584,
+      "function": "retry_outline_grouping",
+      "async": false,
+      "parameters": "identity: str, background: BackgroundTasks, payload: OutlineGroupContinueRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline-group-runs/{identity}/pause",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 594,
+      "function": "pause_outline_grouping",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/outline-groups/{identity}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 604,
+      "function": "update_outline_group",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineGroupReviewRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline-groups/{identity}/source-reviews",
+      "status_code": 202,
+      "file": "web_app.py",
+      "line": 618,
+      "function": "source_review",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineSourceReviewRequest, background: BackgroundTasks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline-source-reviews/{identity}/continue",
+      "status_code": 202,
+      "file": "web_app.py",
+      "line": 630,
+      "function": "continue_review",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineGroupContinueRequest, background: BackgroundTasks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline-source-reviews/{identity}/pause",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 639,
+      "function": "pause_source_review",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline-source-reviews/{identity}/apply",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 644,
+      "function": "apply_review",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineSourceReviewApplyRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outlines/{identity}/routes",
+      "status_code": 202,
+      "file": "web_app.py",
+      "line": 650,
+      "function": "generate_route",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineRouteRequest, background: BackgroundTasks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline-routes/{identity}/continue",
+      "status_code": 202,
+      "file": "web_app.py",
+      "line": 661,
+      "function": "retry_route",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineGroupContinueRequest, background: BackgroundTasks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline-routes/{identity}/pause",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 670,
+      "function": "stop_route",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/outline-route-edges/{identity}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 675,
+      "function": "review_route_edge",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineRouteEdgeRequest"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/outline-routes/{identity}/order",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 681,
+      "function": "change_route_order",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineRouteOrderRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline-routes/{identity}/edges",
+      "status_code": 201,
+      "file": "web_app.py",
+      "line": 686,
+      "function": "add_route_edge",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineRouteAddRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline-candidates/{identity}/enroll",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 691,
+      "function": "enroll_outline_candidate",
+      "async": false,
+      "parameters": "identity: str, payload: OutlineEnrollRequest"
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents/{document_id}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 696,
+      "function": "read_document",
+      "async": false,
+      "parameters": "document_id: str"
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents/{document_id}/assets/{asset_id}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 736,
+      "function": "read_asset",
+      "async": false,
+      "parameters": "document_id: str, asset_id: str, source_id: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/documents",
+      "status_code": 201,
+      "file": "web_app.py",
+      "line": 747,
+      "function": "import_documents",
+      "async": true,
+      "parameters": "files: list[UploadFile]=File(...), collection_id: str='root'"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/documents/{identity}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 772,
+      "function": "replace_document",
+      "async": true,
+      "parameters": "identity: str, expected_source_id: str, file: UploadFile=File(...)"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/documents/{identity}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 800,
+      "function": "remove_document",
+      "async": false,
+      "parameters": "identity: str, expected_source_id: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/documents/{identity}/reparse",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 808,
+      "function": "reparse_document",
+      "async": true,
+      "parameters": "identity: str, expected_source_id: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ask",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 912,
+      "function": "ask",
+      "async": false,
+      "parameters": "payload: AskRequest"
+    },
+    {
+      "method": "GET",
+      "path": "/api/conversations",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 927,
+      "function": "list_conversations",
+      "async": false,
+      "parameters": "archived: bool=False"
+    },
+    {
+      "method": "POST",
+      "path": "/api/conversations/{identity}/archive",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 931,
+      "function": "archive_conversation",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/conversations/{identity}/restore",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 935,
+      "function": "restore_conversation",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/conversations/{identity}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 939,
+      "function": "delete_conversation",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "GET",
+      "path": "/api/history/{message_id}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 944,
+      "function": "history_reference",
+      "async": false,
+      "parameters": "message_id: str, start_offset: int, end_offset: int, message_revision: int=1"
+    },
+    {
+      "method": "POST",
+      "path": "/api/conversations",
+      "status_code": 201,
+      "file": "web_app.py",
+      "line": 955,
+      "function": "create_conversation",
+      "async": false,
+      "parameters": "payload: ConversationRequest"
+    },
+    {
+      "method": "GET",
+      "path": "/api/conversations/{identity}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 961,
+      "function": "read_conversation_metadata",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/conversations/{identity}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 965,
+      "function": "rename_conversation",
+      "async": false,
+      "parameters": "identity: str, payload: ConversationRequest"
+    },
+    {
+      "method": "GET",
+      "path": "/api/conversations/{identity}/messages",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 971,
+      "function": "conversation_messages",
+      "async": false,
+      "parameters": "identity: str, background_tasks: BackgroundTasks, after_seq: int=0, limit: int=100"
+    },
+    {
+      "method": "GET",
+      "path": "/api/conversations/{identity}/summary",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 993,
+      "function": "conversation_summary",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/conversations/{identity}/turns",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1045,
+      "function": "submit_turn",
+      "async": false,
+      "parameters": "identity: str, payload: TurnRequest, background_tasks: BackgroundTasks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/conversations/{identity}/turns/{turn_id}/retry",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1054,
+      "function": "retry_turn",
+      "async": false,
+      "parameters": "identity: str, turn_id: str, payload: RetryTurnRequest, background_tasks: BackgroundTasks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/conversations/{identity}/turns/{turn_id}/skip",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1067,
+      "function": "skip_turn",
+      "async": false,
+      "parameters": "identity: str, turn_id: str"
+    },
+    {
+      "method": "GET",
+      "path": "/api/practice",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1076,
+      "function": "list_practice",
+      "async": false,
+      "parameters": ""
+    },
+    {
+      "method": "GET",
+      "path": "/api/conversations/{identity}/practice",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1086,
+      "function": "chat_practice_jobs",
+      "async": false,
+      "parameters": "identity: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/conversations/{identity}/practice",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1094,
+      "function": "discussion_practice",
+      "async": false,
+      "parameters": "identity: str, payload: ChatPracticeRequest"
+    },
+    {
+      "method": "GET",
+      "path": "/api/practice/{session_id}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1112,
+      "function": "read_practice",
+      "async": false,
+      "parameters": "session_id: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/practice",
+      "status_code": 201,
+      "file": "web_app.py",
+      "line": 1119,
+      "function": "create_practice",
+      "async": false,
+      "parameters": "payload: PracticeStartRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/practice/{session_id}/answers",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1146,
+      "function": "submit_practice_answer",
+      "async": false,
+      "parameters": "session_id: str, payload: PracticeAnswerRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/practice/{session_id}/grade",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1161,
+      "function": "retry_practice_grade",
+      "async": false,
+      "parameters": "session_id: str, payload: PracticeGradeRequest | None=None"
+    },
+    {
+      "method": "POST",
+      "path": "/api/practice/{session_id}/finish",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1178,
+      "function": "finish_practice",
+      "async": false,
+      "parameters": "session_id: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/practice/{session_id}/corrections",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1188,
+      "function": "correct_practice_feedback",
+      "async": false,
+      "parameters": "session_id: str, payload: CorrectionRequest"
+    },
+    {
+      "method": "GET",
+      "path": "/api/learning",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1209,
+      "function": "learning_plan",
+      "async": false,
+      "parameters": "collection_id: str='root'"
+    },
+    {
+      "method": "POST",
+      "path": "/api/practice/{session_id}/enroll",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1213,
+      "function": "enroll",
+      "async": false,
+      "parameters": "session_id: str, payload: EnrollmentRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/learning/{item_id}/review",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1221,
+      "function": "review",
+      "async": false,
+      "parameters": "item_id: str, payload: ReviewRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/learning/{item_id}/dimensions",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1226,
+      "function": "dimension",
+      "async": false,
+      "parameters": "item_id: str, payload: DimensionRequest"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/learning/{item_id}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1231,
+      "function": "learning_status",
+      "async": false,
+      "parameters": "item_id: str, payload: StatusRequest"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/review-events/{event_id}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1235,
+      "function": "rating",
+      "async": false,
+      "parameters": "event_id: str, payload: RatingRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/practice/{session_id}/evaluation",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1239,
+      "function": "evaluation",
+      "async": false,
+      "parameters": "session_id: str, payload: GradeCorrectionRequest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/practice/{session_id}/continue",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1244,
+      "function": "continue_practice",
+      "async": false,
+      "parameters": "session_id: str"
+    },
+    {
+      "method": "POST",
+      "path": "/api/practice/{session_id}/reference/{question_id}",
+      "status_code": 200,
+      "file": "web_app.py",
+      "line": 1251,
+      "function": "reference",
+      "async": false,
+      "parameters": "session_id: str, question_id: str"
+    }
+  ],
+  "request_models": [
+    {
+      "name": "AskRequest",
+      "file": "web_app.py",
+      "line": 175,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "document_ids: list[str] = Field(min_length=1, max_length=MAX_SCOPE)",
+        "focus_document_id: str",
+        "focus_source_id: str",
+        "line_start: int | None = None",
+        "line_end: int | None = None",
+        "question: str = Field(min_length=1, max_length=4000)",
+        "strict: bool = False",
+        "response_language: ResponseLanguage = 'zh'",
+        "retrieval_mode: Literal['dense', 'hybrid'] = 'dense'"
+      ]
+    },
+    {
+      "name": "ConversationRequest",
+      "file": "web_app.py",
+      "line": 191,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "title: str = Field(default='新聊天', min_length=1, max_length=120)"
+      ]
+    },
+    {
+      "name": "TurnRequest",
+      "file": "web_app.py",
+      "line": 196,
+      "bases": [
+        "AskRequest"
+      ],
+      "fields": [
+        "request_id: str = Field(min_length=1, max_length=100, pattern='^[a-zA-Z0-9_-]+$')"
+      ]
+    },
+    {
+      "name": "RetryTurnRequest",
+      "file": "web_app.py",
+      "line": 200,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "response_language: ResponseLanguage | None = None",
+        "retrieval_mode: Literal['dense', 'hybrid'] | None = None"
+      ]
+    },
+    {
+      "name": "ChatPracticeRequest",
+      "file": "web_app.py",
+      "line": 206,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "request_id: str = Field(min_length=1, max_length=100, pattern='^[a-zA-Z0-9_-]+$')",
+        "objective: str = Field(default='', max_length=300)",
+        "response_language: ResponseLanguage = 'zh'",
+        "collection_id: str = 'root'",
+        "strict: bool = False",
+        "document_ids: list[str] = Field(default_factory=list, max_length=MAX_SCOPE)",
+        "focus_document_id: str | None = None",
+        "focus_source_id: str | None = None"
+      ]
+    },
+    {
+      "name": "PracticeStartRequest",
+      "file": "web_app.py",
+      "line": 218,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "document_ids: list[str] = Field(min_length=1, max_length=MAX_SCOPE)",
+        "focus_document_id: str",
+        "focus_source_id: str",
+        "line_start: int | None = None",
+        "line_end: int | None = None",
+        "objective: str = Field(default='', max_length=300)",
+        "response_language: ResponseLanguage = 'zh'"
+      ]
+    },
+    {
+      "name": "CollectionRequest",
+      "file": "web_app.py",
+      "line": 230,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "name: str = Field(min_length=1, max_length=100)",
+        "parent_id: str = 'root'"
+      ]
+    },
+    {
+      "name": "CollectionPracticeRequest",
+      "file": "web_app.py",
+      "line": 241,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "objective: str = Field(default='', max_length=300)",
+        "response_language: ResponseLanguage = 'zh'"
+      ]
+    },
+    {
+      "name": "OutlineRequest",
+      "file": "web_app.py",
+      "line": 247,
+      "bases": [
+        "CollectionPracticeRequest"
+      ],
+      "fields": [
+        "request_id: str = Field(min_length=1, max_length=100, pattern='^[a-zA-Z0-9_-]+$')"
+      ]
+    },
+    {
+      "name": "OutlineEditRequest",
+      "file": "web_app.py",
+      "line": 251,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "learning: LearningDraft",
+        "revision: int = Field(ge=1)"
+      ]
+    },
+    {
+      "name": "OutlineEnrollRequest",
+      "file": "web_app.py",
+      "line": 257,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "revision: int = Field(ge=1)",
+        "collection_id: str = 'root'",
+        "unit_id: str | None = None",
+        "response_language: ResponseLanguage = 'zh'"
+      ]
+    },
+    {
+      "name": "OutlineGroupRequest",
+      "file": "web_app.py",
+      "line": 265,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "request_id: str = Field(min_length=1, max_length=100, pattern='^[a-zA-Z0-9_-]+$')",
+        "response_language: ResponseLanguage = 'zh'",
+        "candidate_ids: list[str] | None = None",
+        "call_limit: int = Field(default=24, ge=1, le=200)"
+      ]
+    },
+    {
+      "name": "OutlineGroupContinueRequest",
+      "file": "web_app.py",
+      "line": 273,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "call_limit: int = Field(default=24, ge=1, le=200)"
+      ]
+    },
+    {
+      "name": "OutlineGroupReviewRequest",
+      "file": "web_app.py",
+      "line": 278,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "revision: int = Field(ge=1)",
+        "decision: Literal['proposed', 'accepted', 'rejected']",
+        "name: str = Field(min_length=1, max_length=160)",
+        "reason: str = Field(min_length=1, max_length=600)",
+        "canonical_id: str | None = None",
+        "unit_id: str | None = None"
+      ]
+    },
+    {
+      "name": "OutlineSourceReviewRequest",
+      "file": "web_app.py",
+      "line": 288,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "request_id: str = Field(min_length=1, max_length=100, pattern='^[a-zA-Z0-9_-]+$')",
+        "response_language: ResponseLanguage = 'zh'"
+      ]
+    },
+    {
+      "name": "OutlineSourceReviewApplyRequest",
+      "file": "web_app.py",
+      "line": 294,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "group_revision: int = Field(ge=1)",
+        "canonical_id: str | None = None",
+        "unit_id: str | None = None"
+      ]
+    },
+    {
+      "name": "OutlineRouteRequest",
+      "file": "web_app.py",
+      "line": 301,
+      "bases": [
+        "OutlineGroupRequest"
+      ],
+      "fields": [
+        "candidate_ids: list[str] | None = Field(default=None, min_length=1)"
+      ]
+    },
+    {
+      "name": "OutlineRouteEdgeRequest",
+      "file": "web_app.py",
+      "line": 305,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "revision: int = Field(ge=1)",
+        "before_id: str",
+        "after_id: str",
+        "kind: Literal['prerequisite', 'helpful_first', 'uncertain']",
+        "reason: str = Field(min_length=1, max_length=350)",
+        "decision: Literal['proposed', 'accepted', 'rejected']"
+      ]
+    },
+    {
+      "name": "OutlineRouteOrderRequest",
+      "file": "web_app.py",
+      "line": 315,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "revision: int = Field(ge=1)",
+        "order: list[str] | None",
+        "skipped: list[str]"
+      ]
+    },
+    {
+      "name": "OutlineRouteAddRequest",
+      "file": "web_app.py",
+      "line": 322,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "revision: int = Field(ge=1)",
+        "before_id: str",
+        "after_id: str",
+        "kind: Literal['prerequisite', 'helpful_first', 'uncertain']",
+        "reason: str = Field(min_length=1, max_length=350)"
+      ]
+    },
+    {
+      "name": "PracticeAnswerRequest",
+      "file": "web_app.py",
+      "line": 331,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "answer: str = Field(min_length=1, max_length=10000)",
+        "response_language: ResponseLanguage | None = None",
+        "assistance: Literal['none_recorded', 'hint_used', 'reference_seen'] = 'none_recorded'"
+      ]
+    },
+    {
+      "name": "EnrollmentRequest",
+      "file": "web_app.py",
+      "line": 339,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "question_id: str",
+        "unit_id: str | None = None",
+        "response_language: ResponseLanguage = 'zh'",
+        "collection_id: str = 'root'"
+      ]
+    },
+    {
+      "name": "ReviewRequest",
+      "file": "web_app.py",
+      "line": 347,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "mode: Literal['variant', 'original'] = 'variant'",
+        "response_language: ResponseLanguage = 'zh'"
+      ]
+    },
+    {
+      "name": "DimensionRequest",
+      "file": "web_app.py",
+      "line": 353,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "capability: Capability",
+        "response_language: ResponseLanguage = 'zh'"
+      ]
+    },
+    {
+      "name": "RatingRequest",
+      "file": "web_app.py",
+      "line": 359,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "rating: ReviewRating",
+        "expected_revision: int = Field(ge=1)"
+      ]
+    },
+    {
+      "name": "StatusRequest",
+      "file": "web_app.py",
+      "line": 365,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "status: Literal['active', 'paused']"
+      ]
+    },
+    {
+      "name": "GradeCorrectionRequest",
+      "file": "web_app.py",
+      "line": 370,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "question_id: str",
+        "expected_revision: int = Field(ge=1)",
+        "overall_assessment: Assessment",
+        "covered_indices: list[int]",
+        "missing_indices: list[int]",
+        "feedback: str = Field(min_length=1, max_length=4000)",
+        "suggested_rating: ReviewRating | None",
+        "target_fit: Literal['within_scope', 'outside_scope', 'uncertain']",
+        "reason: str = Field(min_length=1, max_length=4000)"
+      ]
+    },
+    {
+      "name": "PracticeGradeRequest",
+      "file": "web_app.py",
+      "line": 383,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "response_language: ResponseLanguage | None = None"
+      ]
+    },
+    {
+      "name": "CorrectionRequest",
+      "file": "web_app.py",
+      "line": 388,
+      "bases": [
+        "BaseModel"
+      ],
+      "fields": [
+        "question_id: str",
+        "correction: str = Field(min_length=1, max_length=4000)"
+      ]
+    }
+  ],
+  "test_files": [
+    "test_agent_loop.py",
+    "test_answers.py",
+    "test_chunking.py",
+    "test_cli.py",
+    "test_context.py",
+    "test_conversation_memory.py",
+    "test_conversations.py",
+    "test_embeddings.py",
+    "test_evaluation.py",
+    "test_hybrid_retrieval.py",
+    "test_knowledge_tools.py",
+    "test_learning.py",
+    "test_library.py",
+    "test_management_chat_practice.py",
+    "test_model_client.py",
+    "test_outline_context.py",
+    "test_outline_groups.py",
+    "test_outline_integration.py",
+    "test_outline_review.py",
+    "test_outline_routes.py",
+    "test_outlines.py",
+    "test_pdf_documents.py",
+    "test_pdf_vision_settings.py",
+    "test_practice.py",
+    "test_production_retrieval.py",
+    "test_rerank_retrieval.py",
+    "test_retrieval.py",
+    "test_retrieval_benchmark.py",
+    "test_retrieval_expansion.py",
+    "test_sources.py",
+    "test_structured_output.py",
+    "test_support.py",
+    "test_table_reading.py",
+    "test_vector_index.py",
+    "test_web_app.py"
+  ],
+  "files": {
+    "web_app.py": {
+      "sha256": "b95bf96cdd65d0dc810826fbf9489b6ffa1743bcd41848b2a2fc53b31b010a23",
+      "bytes": 65188
+    },
+    "retrieval_review_app.py": {
+      "sha256": "25ac19b2002ca20e335c53b7b0a025058a2931e4bf795bcbba99d3803774a371",
+      "bytes": 4747
+    },
+    "agent_loop.py": {
+      "sha256": "8f4e1780f83be050c56ccee14da8078c989a7fe40979186eb5be32a8d84d8222",
+      "bytes": 15465
+    },
+    "model_client.py": {
+      "sha256": "fb052d806e5380c2272a7547a9b86d145bcaed1fb94e932834f0324e01f8f732",
+      "bytes": 8784
+    },
+    "structured_output.py": {
+      "sha256": "8ea931566eb06ae7641859e7da1824c4498cbeb79b858851c5b854dc6142c1a1",
+      "bytes": 5252
+    },
+    "knowledge_tools.py": {
+      "sha256": "6814e9f5d8036f0ab931933feeef1a41e69d6114c4cf96bb3469d5dc10a67c71",
+      "bytes": 18117
+    },
+    "sources.py": {
+      "sha256": "43cf4c45b648f40d85c5f065ee20e19f4195b7c33ae267e1bbdc618bfc37a917",
+      "bytes": 2681
+    },
+    "document_model.py": {
+      "sha256": "1bc3921818c040124705c3f2fdb53c9f32647fed254b50073870518eac3379f9",
+      "bytes": 8151
+    },
+    "pdf_parser.py": {
+      "sha256": "dee657e717e2249a69f45ac655d8c4af76c64311196350b518181e0569b66c0f",
+      "bytes": 16629
+    },
+    "pdf_vision.py": {
+      "sha256": "b5aaf716d6ebaa4f62d852de05c43809d09d5e4086a7b91ba68115b407d3a3be",
+      "bytes": 10019
+    },
+    "embeddings.py": {
+      "sha256": "37a2e25faea42e37f394bc3bc35715de5633c530ca1520df78c0d1bd74063f79",
+      "bytes": 9841
+    },
+    "embedding_config.py": {
+      "sha256": "326b793028c000e94c9f65730105cf04960cf978718cf473f02d98739dca8c45",
+      "bytes": 2175
+    },
+    "vector_index.py": {
+      "sha256": "07c3e95c31da2bfc46a1c413b1bd2996fa09be31f0f35f65237ae0408cecbb84",
+      "bytes": 4807
+    },
+    "conversation_store.py": {
+      "sha256": "c6814007c90ef9d6ca41d94626027a648b7a65a0d28b62e9f8e195a78618a192",
+      "bytes": 22399
+    },
+    "conversation_context.py": {
+      "sha256": "dba6c59bf5325a4e5ce5cf00f06e7a8224204e1dffcf1fede3a03507ce35b593",
+      "bytes": 13598
+    },
+    "conversation_memory.py": {
+      "sha256": "5973347e8cb6d28cda6dcc30d10d99c2fcce5054723a4e3d86b3c63fc9942dce",
+      "bytes": 15239
+    },
+    "conversation_title.py": {
+      "sha256": "2c1a2a33586edfdcc0fb44251a59fd34fba60c70131c970cdae82fb3435ed6a5",
+      "bytes": 2632
+    },
+    "practice_store.py": {
+      "sha256": "76c9bd5e05fb61ce7e3a4d6a489b92dc27a0b1fddff5a59213d854fe5bf341a8",
+      "bytes": 22923
+    },
+    "practice_service.py": {
+      "sha256": "92924af4e88662ed1a4c01f423eb1bde60c065d81141f08ddc1e8ce404372dd7",
+      "bytes": 8038
+    },
+    "practice_model.py": {
+      "sha256": "d72072177e24b1077d6bfa7b83a3789d01684324e69bc93e21d139e2ddc0feb5",
+      "bytes": 13854
+    },
+    "library_store.py": {
+      "sha256": "7cc05e436660b5425de7e153ac9be5d417f81e7b84c8727fc7a07086823b8297",
+      "bytes": 9006
+    },
+    "learning_store.py": {
+      "sha256": "57ee20bdc80f398fbcc50ae0cb39f5471f8e4d6660eb269a676a58b49056cb2f",
+      "bytes": 10159
+    },
+    "learning_service.py": {
+      "sha256": "1d246c88965fe229219c931a437e2a5885c92998ac2ab8c65ca8da779f55236c",
+      "bytes": 9359
+    },
+    "review_scheduler.py": {
+      "sha256": "b5ba02b107fbdcfd4ebebc0e63fd8f5b55f75ebe1acbfb44c0e54a3dd7bb08da",
+      "bytes": 972
+    },
+    "outline_service.py": {
+      "sha256": "a137673bda2ca42aac84aeca6364dc1c80b63eb57d46c0670dcdc6a99a5791c1",
+      "bytes": 18766
+    },
+    "outline_store.py": {
+      "sha256": "35eac73a2fc38cc8e1aaaf72768eddb6ecf4991c60fdc90c27c1cd6c57946510",
+      "bytes": 21882
+    },
+    "web/static/app.js": {
+      "sha256": "5bf369212098144220a016191b09d6e763e8c5652fbd7fc453dd77fe23bdefaf",
+      "bytes": 44609
+    },
+    "requirements.txt": {
+      "sha256": "46e2f5a6e6fb459952b9f1e2e54acd7f7f1a801e79a3e09ec386561da08731ea",
+      "bytes": 206
+    },
+    "requirements-local.txt": {
+      "sha256": "e5d69b8e1d4c056bb35b36f01f00ce511a457701dc3d3cbc87104d2c76ff28d1",
+      "bytes": 72
+    },
+    "requirements-pdf.txt": {
+      "sha256": "5b9e0105b46c0bfc0b413218f7a3494a3ae77fb69f2cd2b90f80fb4e55d68b1a",
+      "bytes": 94
+    },
+    "requirements-docling.txt": {
+      "sha256": "813e661a706c36ddae6501c550ccce7a2dd0e747158f524be681ffdc8e3e3894",
+      "bytes": 120
+    },
+    "test_web_app.py": {
+      "sha256": "670dca96676220f8d5cb49070b657221daa33b14d5695dc32b132341750dd871",
+      "bytes": 8976
+    },
+    "test_agent_loop.py": {
+      "sha256": "51b45900599414cb326a67e9c9e217e185ab34c6ff7f7e4911f9773070d4a3d4",
+      "bytes": 12162
+    },
+    "test_conversations.py": {
+      "sha256": "eedf7261b60ce5008ebe0d7873b9071e8c8ebc1839319d8808403bd8890a14e3",
+      "bytes": 23286
+    },
+    "test_pdf_documents.py": {
+      "sha256": "3acbf541f0532a94a544a3feb0a41ae5bf52e168d11c849eb2818320f58f914f",
+      "bytes": 22650
+    },
+    "test_learning.py": {
+      "sha256": "60b012748c708a1b9ccdd29a037e7e5d96068fc815f1104e469f9733a6d43482",
+      "bytes": 18773
+    }
+  }
+}

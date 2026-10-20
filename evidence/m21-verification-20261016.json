@@ -1,0 +1,177 @@
+{
+  "milestone": "M2.1 native complete; container runtime verification pending",
+  "date": "2026-10-16",
+  "platform": "WSL Ubuntu 24.04.4 / GCC13.3 / Boost1.88.0 / OpenSSL3 / Redis7.0.15",
+  "boost_source": {
+    "url": "https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.bz2",
+    "sha256": "46d9d2c06637b219270877c9e16155cbd015b6dc84349af064c088e9b5b12f7b",
+    "checksum_verified": true,
+    "location": "/home/mamahorse/build/ai-gateway-deps/boost_1_88_0"
+  },
+  "builds": {
+    "debug": {
+      "test_counts": [
+        23,
+        22,
+        16
+      ],
+      "unique_methods": 61,
+      "ctest_entries": 3,
+      "limiter_observations": {
+        "two_gateways": {
+          "arrivals": 40,
+          "accepted": 7,
+          "rejected": 33
+        },
+        "redis_checks": {
+          "count": 100,
+          "fds_before": 9,
+          "fds_after": 9,
+          "threads": 2
+        }
+      },
+      "log": "evidence/m21-normal-tests-20261016.log"
+    },
+    "asan_ubsan": {
+      "test_counts": [
+        23,
+        22,
+        16
+      ],
+      "unique_methods": 61,
+      "ctest_entries": 3,
+      "limiter_observations": {
+        "two_gateways": {
+          "arrivals": 40,
+          "accepted": 7,
+          "rejected": 33
+        },
+        "redis_checks": {
+          "count": 100,
+          "fds_before": 9,
+          "fds_after": 9,
+          "threads": 2
+        }
+      },
+      "log": "evidence/m21-sanitizer-tests-20261016.log"
+    }
+  },
+  "unique_black_box_test_methods": 61,
+  "real_python_integration": {
+    "checks_passed": 10,
+    "checks": [
+      "real healthz through readiness without model calls",
+      "incremental actual Agent read_source and final structured model HTTP flow",
+      "result event equals committed SQLite public turn",
+      "completed request replay does not rerun tools or model",
+      "idempotency conflict remains HTTP 409 before SSE headers",
+      "provider failure emits safe error/done and persists failed turn",
+      "four real running stream tasks reject fifth with HTTP 503",
+      "client disconnect retains slot until synchronous work exits",
+      "blocked model requests leave health checks responsive",
+      "slots recover after actual work completion"
+    ],
+    "observations": {
+      "events": [
+        {
+          "event": "meta",
+          "phase": null,
+          "ms": 26
+        },
+        {
+          "event": "progress",
+          "phase": "context",
+          "ms": 46
+        },
+        {
+          "event": "progress",
+          "phase": "agent_model",
+          "ms": 69
+        },
+        {
+          "event": "progress",
+          "phase": "tool",
+          "ms": 568
+        },
+        {
+          "event": "progress",
+          "phase": "tool",
+          "ms": 568
+        },
+        {
+          "event": "progress",
+          "phase": "agent_model",
+          "ms": 568
+        },
+        {
+          "event": "progress",
+          "phase": "final_model",
+          "ms": 689
+        },
+        {
+          "event": "result",
+          "phase": null,
+          "ms": 871
+        },
+        {
+          "event": "done",
+          "phase": null,
+          "ms": 871
+        }
+      ],
+      "controlled_model_http_requests": 19
+    },
+    "source_unchanged": true,
+    "runtime_source_files": 62,
+    "external_model_calls": false,
+    "model_quality_tested": false,
+    "rate_limiting_enabled": true
+  },
+  "compose_config_validated": true,
+  "compose_validator": "Docker Compose v5.1.4 direct CLI --quiet",
+  "docker_runtime_verified": false,
+  "docker_blocker": "Engine API did not respond within bounded 10-second Docker and 8-second direct Compose checks; owned pending test-stack build clients terminated.",
+  "container_state_confirmed": false,
+  "python_project_modified": false,
+  "external_model_calls": false,
+  "remaining": [
+    "new Docker image/runtime verification",
+    "cross-route task admission and bounded queue",
+    "Python/model task cancellation",
+    "metrics",
+    "full embedding/RAG container verification"
+  ],
+  "source_sha256": {
+    "CMakeLists.txt": "8153a58078a84b1d0f81c349798196fbad82f765057a214a3a2b74805948765a",
+    ".dockerignore": "fabc298d2482b5a87c7c545a5c5f1d4e66b78d052e5fddb7bd876eae93dbc8bd",
+    "src/gateway.cpp": "356c711647f1baf9a6919f6f75d5143377e1681bfd2dcb3b19252ee146508938",
+    "src/gateway.hpp": "3dd732666fb6b3386d16b1ac7c22307d61a870a2ab841406d290525702b731fb",
+    "src/main.cpp": "feb33dd7f2fb350738e945fbb3de3761d4a5052b9fa5fb9cf2f5a485b8417fae",
+    "src/policy.cpp": "fc7549f115cbc1892e2c25e77a5916b6e8f492ee945aad8eeae2a69608ab2cc4",
+    "src/policy.hpp": "a7fdf0637204309869e5fc7f3e44109d00f41cf07ce23328c2dcfb0f5d1d08cb",
+    "src/rate_limit_script.hpp.in": "21228d00d3c579bc408533173409ab0982650280d7b0a4c8e3c3ec5d962b450f",
+    "src/redis_limiter.cpp": "afe274d6b10e4fe51d1c2786b8965619a07431cc2e6fd886e820cfdfb43550f0",
+    "src/redis_limiter.hpp": "24c5bc10690e184b0ecef27c22f187b7325d38bc490096e629b882d4f5b41714",
+    "scripts/rate_limit.lua": "431a29eccb4a94d280576b333eaa8d650f5b86a0c9eda4a5ef522e643728aade",
+    "tools/prepare_boost.sh": "7c6f644bbd84a0e8308def48ff212d146688cd8bd49996dbc7b1e255d52968ed",
+    "tests/compose_smoke.py": "33e79281e048dcee5927ba9ba9975d9ee72f9ceb1b024b7c5b428170a33cc453",
+    "tests/fake_agent.py": "a75bed83c0d94681bbdf85b99e0c915be292a51f4b0da830d0367ac109703b9a",
+    "tests/knowledge_review_smoke.py": "b2ac6a490b54d6d2f5ef80472d4ef1ee90eadcd1f2e340f0b737928ae22350b4",
+    "tests/knowledge_review_sse.py": "06138a8e489a6c6d96dd5781544c904b04a34a2f5a1ffc0c2cbb1ce098f59a41",
+    "tests/local_model_server.py": "b43855af2801151191d0a1e25e5d812d9ab2cca03f88091eaecb90d294d7a245",
+    "tests/test_integration_tools.py": "add7a2c022d7b10f7662951e24475e015f17de6d1b25178b0aef79f7b2718f5b",
+    "tests/test_proxy.py": "603ccf6c9f4c5857c3957de60be71d5f57a99cd060c8738d1ec550fee5b04a80",
+    "tests/test_rate_limit.py": "ae833658136774257f99d687b05471a791988aabcc481e2f4c8f738d201c07ff",
+    "tests/test_streaming.py": "e3f4c817544b315529522cfdc809901de8148789bad92799fa47a81eac5ebd5e",
+    "deploy/agent.env.example": "77264862d0e8ceef1b79a9f5ff1899cfed957f03346211b4f605f1af6c6116b6",
+    "deploy/compose.models.yaml": "8e3a33385f7c21b01dd47c96213285c36fdd7b4c1663e70ced5be440e5aa42a5",
+    "deploy/compose.test.yaml": "8ab8e65547a7b43b2676cac2169b853cc6a8eaf1dbd10c3eafc673f2058e3588",
+    "deploy/compose.yaml": "0e49f3b494d7a0ae36652447f30bdf0022a0b0fcd4e1690095843d372d78618a",
+    "deploy/Dockerfile.agent": "0d518864879e21a49f7c144e87672ef377c1037133b26e22eab8f1ce55b680dc",
+    "deploy/Dockerfile.gateway": "5921f10c3c85cbfc9bc56a0bd6e2e2810ba9444c35acc711be9909b97478d42b",
+    "deploy/README.md": "5f68cae39087496ec71b3a0ce7f0c4a48faa89d0c1bdc6914d922b044016b2d9",
+    "docs/RATE_LIMITING.md": "085494068dc7b4e59702ac69d5b881ce9de4665d04cd9c23d7597863103ae071",
+    "README.md": "66b0a486e6215f386e22056796b85b072b0f17016e09e12d72c774ed7aaeee7e",
+    "AI_GATEWAY_PLAN.md": "844b6eca071c6defc77148cc48a9327960bb07d84ae4de0d50767b81b2638cf5"
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "checks_passed": 12,
+  "checks": [
+    "protected Python process metrics are distinct from local Gateway metrics",
+    "JSON title runs in bounded pool; 20 history reads do not duplicate its model work",
+    "HTTP 202 and submitter disconnect preserve actual background ownership",
+    "replacing only Gateway does not cancel an already accepted Python job",
+    "background and foreground share real capacity; overload rejects before creating another job",
+    "outline pause closes model I/O, rejects late publication, and resume/replay preserve identity",
+    "swallowed business model failure is counted from persisted job status and remains resumable",
+    "grouping pause/retry and nested automatic review share one worker until real workflow exit",
+    "manual source-review submit/pause/continue retain completed evidence and actual ownership",
+    "route submit/pause/continue preserve existing human review and resumable page contracts",
+    "Agent crash resets process counters; persisted interrupted job recovers and explicitly resumes",
+    "actual reservations/workers/ownership return to zero and metrics contain no identity labels"
+  ],
+  "observations": {
+    "final_snapshot": {
+      "schema_version": 1,
+      "scope": "python_process",
+      "workers": 1,
+      "uptime_ms": 967,
+      "held_slots": 0,
+      "queued": 0,
+      "queue_limit": 0,
+      "owned_keys": 0,
+      "types": {
+        "request": {
+          "reserved": 0,
+          "running": 0,
+          "submitted": 0,
+          "started": 0,
+          "exited": 0,
+          "completed": 0,
+          "failed": 0,
+          "cancelled": 0,
+          "cancel_requested": 0,
+          "paused": 0,
+          "stale": 0,
+          "other": 0,
+          "rejected": 0,
+          "deduplicated": 0,
+          "skipped": 0
+        },
+        "background": {
+          "reserved": 0,
+          "running": 0,
+          "submitted": 1,
+          "started": 1,
+          "exited": 1,
+          "completed": 1,
+          "failed": 0,
+          "cancelled": 0,
+          "cancel_requested": 0,
+          "paused": 0,
+          "stale": 0,
+          "other": 0,
+          "rejected": 0,
+          "deduplicated": 0,
+          "skipped": 0
+        },
+        "title": {
+          "reserved": 0,
+          "running": 0,
+          "submitted": 0,
+          "started": 0,
+          "exited": 0,
+          "completed": 0,
+          "failed": 0,
+          "cancelled": 0,
+          "cancel_requested": 0,
+          "paused": 0,
+          "stale": 0,
+          "other": 0,
+          "rejected": 0,
+          "deduplicated": 0,
+          "skipped": 0
+        }
+      }
+    },
+    "model_work": {
+      "ChatTitle": {
+        "calls": 1,
+        "held": 0,
+        "closed": 0
+      },
+      "ComparisonPage": {
+        "calls": 2,
+        "held": 0,
+        "closed": 1
+      },
+      "DocumentBrief": {
+        "calls": 0,
+        "held": 0,
+        "closed": 0
+      },
+      "FullOutlineDraft": {
+        "calls": 6,
+        "held": 0,
+        "closed": 2
+      },
+      "GroupDraft": {
+        "calls": 0,
+        "held": 0,
+        "closed": 0
+      },
+      "OutlineDraft": {
+        "calls": 0,
+        "held": 0,
+        "closed": 0
+      },
+      "ReviewAction": {
+        "calls": 4,
+        "held": 0,
+        "closed": 2
+      },
+      "ReviewConclusion": {
+        "calls": 0,
+        "held": 0,
+        "closed": 0
+      },
+      "RoutePage": {
+        "calls": 2,
+        "held": 0,
+        "closed": 1
+      }
+    }
+  },
+  "external_model_calls": false,
+  "remote_provider_compute_cancellation_verified": false,
+  "source_unchanged": true,
+  "runtime_source_files": 64
+}

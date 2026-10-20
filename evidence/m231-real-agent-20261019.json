@@ -1,0 +1,91 @@
+{
+  "checks_passed": 8,
+  "checks": [
+    "metrics is local, ready, and requires the gateway key",
+    "real JSON turn failure keeps HTTP 200 and increments observed business failure",
+    "JSON failure metric agrees with the persisted turn",
+    "real SSE error/done counts the failed request once without losing terminal recognition",
+    "actual Agent read_source progress remains incremental before the committed result",
+    "HTTP success counts and observed business failure counts remain separate",
+    "model HTTP and admission gauges return to zero after actual responses finish",
+    "health/metrics polling leaves business counters unchanged and snapshots contain no secrets"
+  ],
+  "observations": {
+    "business_failure_delta": 2,
+    "successful_sse_progress_ms": 42,
+    "successful_sse_result_ms": 473,
+    "final_snapshot": {
+      "schema_version": 1,
+      "scope": "gateway_process",
+      "uptime_ms": 3261,
+      "requests": {
+        "finished": 8,
+        "http_status": {
+          "200": 5,
+          "201": 3
+        },
+        "status_other": 0,
+        "model_http_in_flight": 0,
+        "upstream_http_errors": 0,
+        "observed_business_failures": 2,
+        "business_inspection_unavailable": 0,
+        "streams_without_done": 0,
+        "duration_ms_total": 1291,
+        "request_body_bytes_total": 916,
+        "response_body_bytes_total": 9126
+      },
+      "admission": {
+        "enabled": true,
+        "held_permits": 0,
+        "queued": 0,
+        "queued_body_bytes": 0,
+        "active_limit": 2,
+        "queue_limit": 8,
+        "queue_bytes_limit": 4194304,
+        "queue_timeout_ms": 2000
+      },
+      "connections": {
+        "accepted_total": 37,
+        "limit_rejected_total": 0,
+        "active": 1
+      },
+      "end_reasons": {
+        "proxied": 6,
+        "stream_complete": 2,
+        "auth_rejected": 0,
+        "route_rejected": 0,
+        "invalid_target": 0,
+        "invalid_http": 0,
+        "upgrade_rejected": 0,
+        "upload_type_rejected": 0,
+        "expect_rejected": 0,
+        "body_limit": 0,
+        "header_limit": 0,
+        "rate_limited": 0,
+        "redis_unavailable": 0,
+        "queue_full": 0,
+        "queue_timeout": 0,
+        "queue_client_closed": 0,
+        "queue_client_error": 0,
+        "queue_unexpected_data": 0,
+        "client_disconnected": 0,
+        "client_timeout": 0,
+        "timeout": 0,
+        "connect_timeout": 0,
+        "upstream_error": 0,
+        "invalid_stream": 0,
+        "stream_total_timeout": 0,
+        "stream_read_timeout": 0,
+        "upstream_stream_error": 0,
+        "stream_write_error": 0,
+        "downstream_write_error": 0,
+        "shutdown": 0,
+        "other": 0
+      }
+    }
+  },
+  "external_model_calls": false,
+  "model_quality_tested": false,
+  "source_unchanged": true,
+  "runtime_source_files": 62
+}

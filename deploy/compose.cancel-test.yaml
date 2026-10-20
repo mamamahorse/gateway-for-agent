@@ -1,0 +1,17 @@
+# Public synthetic cancellation validation only; requires compose.test.yaml.
+services:
+  gateway:
+    environment:
+      GATEWAY_MODEL_TIMEOUT_MS: "1500"
+      GATEWAY_STREAM_TIMEOUT_MS: "4000"
+      GATEWAY_STREAM_IDLE_TIMEOUT_MS: "700"
+      GATEWAY_STREAM_FIRST_BYTE_TIMEOUT_MS: "1500"
+      GATEWAY_MODEL_CONCURRENCY: "1"
+      GATEWAY_RATE_LIMIT_NORMAL: "1000"
+      GATEWAY_RATE_LIMIT_MODEL: "1000"
+  agent:
+    environment:
+      KNOWLEDGE_REVIEW_MODEL_WORKERS: "1"
+  model:
+    command: ["python", "/tests/local_cancel_model_server.py"]
+    ports: ["127.0.0.1:${CANCEL_MODEL_HOST_PORT:-18490}:9090"]

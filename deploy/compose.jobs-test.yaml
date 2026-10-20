@@ -1,0 +1,16 @@
+# Public synthetic M2.3.3 validation only; combine with compose.test.yaml.
+services:
+  gateway:
+    environment:
+      GATEWAY_HEADER_TIMEOUT_MS: "2000"
+      GATEWAY_REQUEST_TIMEOUT_MS: "5000"
+      GATEWAY_MODEL_TIMEOUT_MS: "15000"
+      GATEWAY_STREAM_TIMEOUT_MS: "15000"
+      GATEWAY_RATE_LIMIT_NORMAL: "1000"
+      GATEWAY_RATE_LIMIT_MODEL: "1000"
+  agent:
+    environment:
+      KNOWLEDGE_REVIEW_MODEL_WORKERS: "1"
+  model:
+    command: ["python", "/tests/local_job_model_server.py"]
+    ports: ["127.0.0.1:${JOB_MODEL_HOST_PORT:-18590}:9090"]

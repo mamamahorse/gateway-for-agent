@@ -1,0 +1,8 @@
+.firecrawl/
+build/
+__pycache__/
+.env
+*.log
+.work/
+deploy/agent.env
+deploy/.env

@@ -1,0 +1,16 @@
+{
+  "checks": [
+    "readiness against actual document API",
+    "real document catalog includes isolated upload",
+    "real document lines and version identity preserved",
+    "real conversation creation with SQLite",
+    "real empty conversation history",
+    "actual FastAPI validation error preserved",
+    "all test business writes remain inside disposable copy"
+  ],
+  "checks_passed": 7,
+  "runtime_source_files": 61,
+  "source_unchanged": true,
+  "model_calls": false,
+  "scope": "Actual FastAPI/SQLite/document endpoints; no RAG or model semantics tested."
+}

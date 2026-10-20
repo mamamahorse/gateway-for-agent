@@ -1,0 +1,24 @@
+FROM ubuntu:24.04 AS build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    g++ cmake ninja-build libssl-dev curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /build
+RUN apt-get update && apt-get install -y --no-install-recommends bzip2 \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl --fail --location --retry 2 https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.bz2 -o /tmp/boost.tar.bz2 \
+    && echo '46d9d2c06637b219270877c9e16155cbd015b6dc84349af064c088e9b5b12f7b  /tmp/boost.tar.bz2' | sha256sum --check \
+    && tar -xjf /tmp/boost.tar.bz2 -C /opt && rm /tmp/boost.tar.bz2
+COPY CMakeLists.txt ./
+COPY src ./src
+COPY scripts ./scripts
+RUN cmake -S . -B out -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DBOOST_ROOT=/opt/boost_1_88_0 \
+    && cmake --build out -j2
+
+FROM ubuntu:24.04
+RUN apt-get update && apt-get install -y --no-install-recommends libssl3t64 curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 10001 gateway && useradd --uid 10001 --gid gateway --no-create-home gateway
+COPY --from=build /build/out/ai-gateway /usr/local/bin/ai-gateway
+USER 10001:10001
+EXPOSE 8080
+CMD ["ai-gateway"]

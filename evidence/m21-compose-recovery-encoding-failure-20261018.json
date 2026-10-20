@@ -1,0 +1,107 @@
+{
+  "project": "gateway-m21-recovery-20261018",
+  "external_model_calls": false,
+  "checks": [
+    "both published gateways ready and Redis PONG",
+    "authentication and health probes do not consume quota",
+    "two containers share atomic quota: 40 arrivals, 7 accepted, 33 rejected with Retry-After",
+    "container business create: 6 checks passed",
+    "container business restore: 5 checks passed",
+    "both gateways and Agent execute as UID 10001"
+  ],
+  "observations": {
+    "shared_burst": {
+      "arrivals": 40,
+      "statuses": {
+        "200": 7,
+        "429": 33
+      },
+      "elapsed_seconds": 0.392,
+      "redis_counter": "7"
+    },
+    "create": {
+      "checks_passed": 6,
+      "events": [
+        {
+          "event": "meta",
+          "ms": 29
+        },
+        {
+          "event": "progress",
+          "ms": 49
+        },
+        {
+          "event": "progress",
+          "ms": 96
+        },
+        {
+          "event": "progress",
+          "ms": 643
+        },
+        {
+          "event": "progress",
+          "ms": 643
+        },
+        {
+          "event": "progress",
+          "ms": 663
+        },
+        {
+          "event": "progress",
+          "ms": 786
+        },
+        {
+          "event": "result",
+          "ms": 948
+        },
+        {
+          "event": "done",
+          "ms": 948
+        }
+      ]
+    },
+    "restore": {
+      "checks_passed": 5,
+      "events": [
+        {
+          "event": "meta",
+          "ms": 29
+        },
+        {
+          "event": "progress",
+          "ms": 49
+        },
+        {
+          "event": "progress",
+          "ms": 96
+        },
+        {
+          "event": "progress",
+          "ms": 643
+        },
+        {
+          "event": "progress",
+          "ms": 643
+        },
+        {
+          "event": "progress",
+          "ms": 663
+        },
+        {
+          "event": "progress",
+          "ms": 786
+        },
+        {
+          "event": "result",
+          "ms": 948
+        },
+        {
+          "event": "done",
+          "ms": 948
+        }
+      ]
+    }
+  },
+  "status": "failed",
+  "error": "AttributeError(\"'NoneType' object has no attribute 'strip'\")"
+}

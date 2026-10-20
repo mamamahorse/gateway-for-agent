@@ -1,0 +1,5 @@
+gateway-m22-validation-20261018-gateway-1	exited
+gateway-m22-validation-20261018-gateway-peer-1	exited
+gateway-m22-validation-20261018-agent-1	exited
+gateway-m22-validation-20261018-redis-1	exited
+gateway-m22-validation-20261018-model-1	exited

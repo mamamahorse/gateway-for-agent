@@ -1,0 +1,5 @@
+#pragma once
+#include <string_view>
+namespace gateway {
+inline constexpr std::string_view rate_limit_script = R"lua(@RATE_LIMIT_LUA@)lua";
+}

@@ -1,0 +1,109 @@
+{
+  "project": "gateway-m22-validation-20261018",
+  "external_model_calls": false,
+  "checks": [
+    "both published gateways ready and Redis PONG",
+    "authentication and health probes do not consume quota",
+    "two containers share atomic quota: 40 arrivals, 7 accepted, 33 rejected with Retry-After",
+    "container business create: 6 checks passed",
+    "container business restore: 5 checks passed",
+    "both gateways and Agent execute as UID 10001",
+    "service states captured after replacement and restore",
+    "Redis outage: liveness stays 200, readiness and business requests return 503",
+    "Redis restart restores readiness and business traffic without gateway restart"
+  ],
+  "observations": {
+    "shared_burst": {
+      "arrivals": 40,
+      "statuses": {
+        "200": 7,
+        "429": 33
+      },
+      "elapsed_seconds": 0.251,
+      "redis_counter": "7"
+    },
+    "create": {
+      "checks_passed": 6,
+      "events": [
+        {
+          "event": "meta",
+          "ms": 46
+        },
+        {
+          "event": "progress",
+          "ms": 68
+        },
+        {
+          "event": "progress",
+          "ms": 113
+        },
+        {
+          "event": "progress",
+          "ms": 616
+        },
+        {
+          "event": "progress",
+          "ms": 616
+        },
+        {
+          "event": "progress",
+          "ms": 639
+        },
+        {
+          "event": "progress",
+          "ms": 776
+        },
+        {
+          "event": "result",
+          "ms": 951
+        },
+        {
+          "event": "done",
+          "ms": 951
+        }
+      ]
+    },
+    "restore": {
+      "checks_passed": 5,
+      "events": [
+        {
+          "event": "meta",
+          "ms": 46
+        },
+        {
+          "event": "progress",
+          "ms": 68
+        },
+        {
+          "event": "progress",
+          "ms": 113
+        },
+        {
+          "event": "progress",
+          "ms": 616
+        },
+        {
+          "event": "progress",
+          "ms": 616
+        },
+        {
+          "event": "progress",
+          "ms": 639
+        },
+        {
+          "event": "progress",
+          "ms": 776
+        },
+        {
+          "event": "result",
+          "ms": 951
+        },
+        {
+          "event": "done",
+          "ms": 951
+        }
+      ]
+    }
+  },
+  "status": "passed"
+}

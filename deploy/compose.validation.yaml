@@ -1,0 +1,7 @@
+# Used with compose.yaml + compose.test.yaml for the M2.1 two-instance test.
+services:
+  gateway-peer:
+    extends:
+      file: ./compose.yaml
+      service: gateway
+    ports: !override ["127.0.0.1:${GATEWAY_PEER_PORT:-18081}:8080"]

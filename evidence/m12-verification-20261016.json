@@ -1,0 +1,114 @@
+{
+  "milestone": "M1.2",
+  "date": "2026-10-16",
+  "platform": "WSL Ubuntu 24.04.4 / GCC 13.3 / Boost 1.83 / CMake 3.28",
+  "builds": {
+    "debug": {
+      "test_methods_passed": 45,
+      "ctest_entries_passed": 2,
+      "observations": {
+        "event_timing_ms": {
+          "progress_events": [
+            1,
+            251,
+            501
+          ],
+          "complete": 752
+        },
+        "slow_reader_rss_growth_kib": 0,
+        "stream_disconnects": {
+          "count": 100,
+          "fds_before": 9,
+          "fds_after": 9,
+          "threads_before": 2,
+          "threads_after": 2
+        },
+        "upload_memory": {
+          "payload_bytes": 33554432,
+          "mid_upload_rss_growth_kib": 384,
+          "duration_ms": 1812
+        }
+      },
+      "log": "evidence/m12-normal-tests-20261016.log"
+    },
+    "asan_ubsan": {
+      "test_methods_passed": 45,
+      "ctest_entries_passed": 2,
+      "observations": {
+        "event_timing_ms": {
+          "progress_events": [
+            3,
+            253,
+            503
+          ],
+          "complete": 753
+        },
+        "slow_reader_rss_growth_kib": 640,
+        "stream_disconnects": {
+          "count": 100,
+          "fds_before": 9,
+          "fds_after": 9,
+          "threads_before": 2,
+          "threads_after": 2
+        },
+        "upload_memory": {
+          "payload_bytes": 33554432,
+          "mid_upload_rss_growth_kib": 10240,
+          "duration_ms": 7001
+        }
+      },
+      "log": "evidence/m12-sanitizer-tests-20261016.log"
+    }
+  },
+  "unique_black_box_test_methods": 45,
+  "real_backend_smoke": {
+    "checks": [
+      "multipart Markdown upload through streaming gateway",
+      "readiness against actual document API",
+      "real document catalog includes isolated upload",
+      "real document lines and version identity preserved",
+      "real conversation creation with SQLite",
+      "real empty conversation history",
+      "actual FastAPI validation error preserved",
+      "real multipart PDF import through gateway",
+      "real PDF parser returns unified document metadata",
+      "missing Python SSE endpoint remains an honest upstream 404",
+      "all test business writes remain inside disposable copy"
+    ],
+    "checks_passed": 11,
+    "runtime_source_files": 61,
+    "source_unchanged": true,
+    "model_calls": false,
+    "scope": "Actual FastAPI/SQLite/document endpoints; no RAG or model semantics tested."
+  },
+  "implemented": [
+    "incremental SSE proxy with bounded buffers and backpressure",
+    "streaming multipart upload",
+    "first-byte, idle, write and total stream deadlines",
+    "upload timeout HTTP 408 and early upstream rejection"
+  ],
+  "remaining": [
+    "Python business SSE endpoint",
+    "Redis rate limiting",
+    "Agent concurrency and queue",
+    "Python task cancellation",
+    "Docker Compose integration"
+  ],
+  "upload_validation": {
+    "synthetic_payload_bytes": 33554432,
+    "configured_limit_bytes": 436207616,
+    "full_limit_payload_tested": false
+  },
+  "source_sha256": {
+    "CMakeLists.txt": "68a96d0b0c5c549e9477be2acab2ba21e8c2fed59224581f621d630cf16b9ad7",
+    "src/gateway.cpp": "4d12dc8c2fde9ded61dbc67404f4ee0e757b9581d536443a9f1089e7d2511095",
+    "src/gateway.hpp": "2df922c691ed557863ee37a7638bc56bea310c19d29f856d9d17399bfd6bea43",
+    "src/main.cpp": "8fbac53779fa930626ce87af2f4ce7296d501875779eae87ffe5a6bd0303151f",
+    "src/policy.cpp": "fc7549f115cbc1892e2c25e77a5916b6e8f492ee945aad8eeae2a69608ab2cc4",
+    "src/policy.hpp": "a7fdf0637204309869e5fc7f3e44109d00f41cf07ce23328c2dcfb0f5d1d08cb",
+    "tests/fake_agent.py": "a75bed83c0d94681bbdf85b99e0c915be292a51f4b0da830d0367ac109703b9a",
+    "tests/knowledge_review_smoke.py": "fe41f5b318c9d153fad77db8845a65e086654167e06c8e61adb65a562f8f14a5",
+    "tests/test_proxy.py": "603ccf6c9f4c5857c3957de60be71d5f57a99cd060c8738d1ec550fee5b04a80",
+    "tests/test_streaming.py": "e3f4c817544b315529522cfdc809901de8148789bad92799fa47a81eac5ebd5e"
+  }
+}

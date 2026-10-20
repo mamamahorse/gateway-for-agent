@@ -1,0 +1,283 @@
+{
+  "checks_passed": 9,
+  "checks": [
+    "SSE disconnect closes actual model header wait and saves one failed turn",
+    "SSE disconnect aborts partial model response body without SDK retry",
+    "SSE disconnect during final structured generation prevents late completed publication",
+    "JSON disconnect is observed before response headers and cancels actual work",
+    "Gateway JSON total deadline propagates cancellation to actual model I/O and saved turn",
+    "Gateway SSE idle deadline closes Python stream and actual model request",
+    "12 repeated alternating JSON/SSE cancellations leave one failed turn each and no further model calls",
+    "actual worker accepts new generation after cancellation; completed replay remains idempotent",
+    "proxy in-flight and queue gauges return to zero after actual cancellation/recovery checks"
+  ],
+  "observations": {
+    "sse_headers": {
+      "mode": "headers",
+      "stream": true,
+      "cancel_and_saved_ms": 173,
+      "model": {
+        "calls": 1,
+        "started": 1,
+        "closed": 1,
+        "phase": "agent"
+      },
+      "turn_status": "failed"
+    },
+    "sse_body": {
+      "mode": "body",
+      "stream": true,
+      "cancel_and_saved_ms": 134,
+      "model": {
+        "calls": 1,
+        "started": 1,
+        "closed": 1,
+        "phase": "agent"
+      },
+      "turn_status": "failed"
+    },
+    "sse_final": {
+      "mode": "final",
+      "stream": true,
+      "cancel_and_saved_ms": 125,
+      "model": {
+        "calls": 3,
+        "started": 1,
+        "closed": 1,
+        "phase": "final"
+      },
+      "turn_status": "failed"
+    },
+    "json_headers": {
+      "mode": "headers",
+      "stream": false,
+      "cancel_and_saved_ms": 188,
+      "model": {
+        "calls": 1,
+        "started": 1,
+        "closed": 1,
+        "phase": "agent"
+      },
+      "turn_status": "failed"
+    },
+    "repeated": [
+      {
+        "mode": "headers",
+        "stream": true,
+        "cancel_and_saved_ms": 135,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      },
+      {
+        "mode": "headers",
+        "stream": false,
+        "cancel_and_saved_ms": 185,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      },
+      {
+        "mode": "headers",
+        "stream": true,
+        "cancel_and_saved_ms": 163,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      },
+      {
+        "mode": "headers",
+        "stream": false,
+        "cancel_and_saved_ms": 217,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      },
+      {
+        "mode": "headers",
+        "stream": true,
+        "cancel_and_saved_ms": 164,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      },
+      {
+        "mode": "headers",
+        "stream": false,
+        "cancel_and_saved_ms": 188,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      },
+      {
+        "mode": "headers",
+        "stream": true,
+        "cancel_and_saved_ms": 186,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      },
+      {
+        "mode": "headers",
+        "stream": false,
+        "cancel_and_saved_ms": 144,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      },
+      {
+        "mode": "headers",
+        "stream": true,
+        "cancel_and_saved_ms": 184,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      },
+      {
+        "mode": "headers",
+        "stream": false,
+        "cancel_and_saved_ms": 165,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      },
+      {
+        "mode": "headers",
+        "stream": true,
+        "cancel_and_saved_ms": 157,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      },
+      {
+        "mode": "headers",
+        "stream": false,
+        "cancel_and_saved_ms": 202,
+        "model": {
+          "calls": 1,
+          "started": 1,
+          "closed": 1,
+          "phase": "agent"
+        },
+        "turn_status": "failed"
+      }
+    ],
+    "final_snapshot": {
+      "schema_version": 1,
+      "scope": "gateway_process",
+      "uptime_ms": 98825,
+      "requests": {
+        "finished": 59,
+        "http_status": {
+          "0": 7,
+          "200": 32,
+          "201": 19,
+          "504": 1
+        },
+        "status_other": 0,
+        "model_http_in_flight": 0,
+        "upstream_http_errors": 0,
+        "observed_business_failures": 0,
+        "business_inspection_unavailable": 0,
+        "streams_without_done": 10,
+        "duration_ms_total": 5138,
+        "request_body_bytes_total": 6629,
+        "response_body_bytes_total": 35896
+      },
+      "admission": {
+        "enabled": true,
+        "held_permits": 0,
+        "queued": 0,
+        "queued_body_bytes": 0,
+        "active_limit": 1,
+        "queue_limit": 8,
+        "queue_bytes_limit": 4194304,
+        "queue_timeout_ms": 2000
+      },
+      "connections": {
+        "accepted_total": 81,
+        "limit_rejected_total": 0,
+        "active": 1
+      },
+      "end_reasons": {
+        "proxied": 41,
+        "stream_complete": 0,
+        "auth_rejected": 0,
+        "route_rejected": 0,
+        "invalid_target": 0,
+        "invalid_http": 0,
+        "upgrade_rejected": 0,
+        "upload_type_rejected": 0,
+        "expect_rejected": 0,
+        "body_limit": 0,
+        "header_limit": 0,
+        "rate_limited": 0,
+        "redis_unavailable": 0,
+        "queue_full": 0,
+        "queue_timeout": 0,
+        "queue_client_closed": 0,
+        "queue_client_error": 0,
+        "queue_unexpected_data": 0,
+        "client_disconnected": 16,
+        "client_timeout": 0,
+        "timeout": 1,
+        "connect_timeout": 0,
+        "upstream_error": 0,
+        "invalid_stream": 0,
+        "stream_total_timeout": 0,
+        "stream_read_timeout": 1,
+        "upstream_stream_error": 0,
+        "stream_write_error": 0,
+        "downstream_write_error": 0,
+        "shutdown": 0,
+        "other": 0
+      }
+    }
+  },
+  "external_model_calls": false,
+  "remote_provider_compute_cancellation_verified": false
+}

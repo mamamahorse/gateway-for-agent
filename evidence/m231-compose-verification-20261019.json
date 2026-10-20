@@ -1,0 +1,249 @@
+{
+  "project": "gateway-m231-validation-20261019",
+  "external_model_calls": false,
+  "checks": [
+    "two Gateway containers expose independent process counters",
+    "real container Agent JSON/SSE metrics: 8 checks passed",
+    "container upload, SQLite and incremental SSE: 6 checks passed",
+    "recreating Gateway containers resets process counters",
+    "saved Agent data and idempotent replay survive Gateway replacement: 5 checks passed",
+    "Redis outage leaves both metrics endpoints readable and counts one business failure reason",
+    "Redis recovery restores business traffic without resetting Gateway counters",
+    "Gateway and Agent retain nonroot UID10001",
+    "owned test containers, named/anonymous volumes and network removed; images retained"
+  ],
+  "before_gateway_recreation": {
+    "schema_version": 1,
+    "scope": "gateway_process",
+    "uptime_ms": 128984,
+    "requests": {
+      "finished": 15,
+      "http_status": {
+        "200": 9,
+        "201": 5,
+        "401": 1
+      },
+      "status_other": 0,
+      "model_http_in_flight": 0,
+      "upstream_http_errors": 0,
+      "observed_business_failures": 2,
+      "business_inspection_unavailable": 0,
+      "streams_without_done": 0,
+      "duration_ms_total": 2001,
+      "request_body_bytes_total": 1461,
+      "response_body_bytes_total": 17848
+    },
+    "admission": {
+      "enabled": true,
+      "held_permits": 0,
+      "queued": 0,
+      "queued_body_bytes": 0,
+      "active_limit": 2,
+      "queue_limit": 8,
+      "queue_bytes_limit": 4194304,
+      "queue_timeout_ms": 2000
+    },
+    "connections": {
+      "accepted_total": 54,
+      "limit_rejected_total": 0,
+      "active": 1
+    },
+    "end_reasons": {
+      "proxied": 11,
+      "stream_complete": 3,
+      "auth_rejected": 1,
+      "route_rejected": 0,
+      "invalid_target": 0,
+      "invalid_http": 0,
+      "upgrade_rejected": 0,
+      "upload_type_rejected": 0,
+      "expect_rejected": 0,
+      "body_limit": 0,
+      "header_limit": 0,
+      "rate_limited": 0,
+      "redis_unavailable": 0,
+      "queue_full": 0,
+      "queue_timeout": 0,
+      "queue_client_closed": 0,
+      "queue_client_error": 0,
+      "queue_unexpected_data": 0,
+      "client_disconnected": 0,
+      "client_timeout": 0,
+      "timeout": 0,
+      "connect_timeout": 0,
+      "upstream_error": 0,
+      "invalid_stream": 0,
+      "stream_total_timeout": 0,
+      "stream_read_timeout": 0,
+      "upstream_stream_error": 0,
+      "stream_write_error": 0,
+      "downstream_write_error": 0,
+      "shutdown": 0,
+      "other": 0
+    }
+  },
+  "redis_outage_snapshot": {
+    "schema_version": 1,
+    "scope": "gateway_process",
+    "uptime_ms": 6235,
+    "requests": {
+      "finished": 5,
+      "http_status": {
+        "200": 3,
+        "401": 1,
+        "503": 1
+      },
+      "status_other": 0,
+      "model_http_in_flight": 0,
+      "upstream_http_errors": 0,
+      "observed_business_failures": 0,
+      "business_inspection_unavailable": 0,
+      "streams_without_done": 0,
+      "duration_ms_total": 148,
+      "request_body_bytes_total": 281,
+      "response_body_bytes_total": 7725
+    },
+    "admission": {
+      "enabled": true,
+      "held_permits": 0,
+      "queued": 0,
+      "queued_body_bytes": 0,
+      "active_limit": 2,
+      "queue_limit": 8,
+      "queue_bytes_limit": 4194304,
+      "queue_timeout_ms": 2000
+    },
+    "connections": {
+      "accepted_total": 13,
+      "limit_rejected_total": 0,
+      "active": 1
+    },
+    "end_reasons": {
+      "proxied": 2,
+      "stream_complete": 1,
+      "auth_rejected": 1,
+      "route_rejected": 0,
+      "invalid_target": 0,
+      "invalid_http": 0,
+      "upgrade_rejected": 0,
+      "upload_type_rejected": 0,
+      "expect_rejected": 0,
+      "body_limit": 0,
+      "header_limit": 0,
+      "rate_limited": 0,
+      "redis_unavailable": 1,
+      "queue_full": 0,
+      "queue_timeout": 0,
+      "queue_client_closed": 0,
+      "queue_client_error": 0,
+      "queue_unexpected_data": 0,
+      "client_disconnected": 0,
+      "client_timeout": 0,
+      "timeout": 0,
+      "connect_timeout": 0,
+      "upstream_error": 0,
+      "invalid_stream": 0,
+      "stream_total_timeout": 0,
+      "stream_read_timeout": 0,
+      "upstream_stream_error": 0,
+      "stream_write_error": 0,
+      "downstream_write_error": 0,
+      "shutdown": 0,
+      "other": 0
+    }
+  },
+  "after_redis_recovery": {
+    "schema_version": 1,
+    "scope": "gateway_process",
+    "uptime_ms": 9421,
+    "requests": {
+      "finished": 6,
+      "http_status": {
+        "200": 4,
+        "401": 1,
+        "503": 1
+      },
+      "status_other": 0,
+      "model_http_in_flight": 0,
+      "upstream_http_errors": 0,
+      "observed_business_failures": 0,
+      "business_inspection_unavailable": 0,
+      "streams_without_done": 0,
+      "duration_ms_total": 164,
+      "request_body_bytes_total": 281,
+      "response_body_bytes_total": 8147
+    },
+    "admission": {
+      "enabled": true,
+      "held_permits": 0,
+      "queued": 0,
+      "queued_body_bytes": 0,
+      "active_limit": 2,
+      "queue_limit": 8,
+      "queue_bytes_limit": 4194304,
+      "queue_timeout_ms": 2000
+    },
+    "connections": {
+      "accepted_total": 29,
+      "limit_rejected_total": 0,
+      "active": 1
+    },
+    "end_reasons": {
+      "proxied": 3,
+      "stream_complete": 1,
+      "auth_rejected": 1,
+      "route_rejected": 0,
+      "invalid_target": 0,
+      "invalid_http": 0,
+      "upgrade_rejected": 0,
+      "upload_type_rejected": 0,
+      "expect_rejected": 0,
+      "body_limit": 0,
+      "header_limit": 0,
+      "rate_limited": 0,
+      "redis_unavailable": 1,
+      "queue_full": 0,
+      "queue_timeout": 0,
+      "queue_client_closed": 0,
+      "queue_client_error": 0,
+      "queue_unexpected_data": 0,
+      "client_disconnected": 0,
+      "client_timeout": 0,
+      "timeout": 0,
+      "connect_timeout": 0,
+      "upstream_error": 0,
+      "invalid_stream": 0,
+      "stream_total_timeout": 0,
+      "stream_read_timeout": 0,
+      "upstream_stream_error": 0,
+      "stream_write_error": 0,
+      "downstream_write_error": 0,
+      "shutdown": 0,
+      "other": 0
+    }
+  },
+  "cleanup": {
+    "verified": true,
+    "containers_removed": [
+      "gateway-m231-validation-20261019-gateway-1",
+      "gateway-m231-validation-20261019-gateway-peer-1",
+      "gateway-m231-validation-20261019-agent-1",
+      "gateway-m231-validation-20261019-redis-1",
+      "gateway-m231-validation-20261019-model-1"
+    ],
+    "named_synthetic_volumes_removed": [
+      "gateway-m231-validation-20261019_agent_data",
+      "gateway-m231-validation-20261019_agent_models"
+    ],
+    "anonymous_owned_volumes_removed": [
+      "8a1e319fa423f3e72e70346310f29eaa908f95389aa893cdd43e375eb1512789"
+    ],
+    "remaining": {
+      "containers": "",
+      "volumes": "",
+      "networks": ""
+    },
+    "images_retained": true
+  },
+  "status": "passed"
+}

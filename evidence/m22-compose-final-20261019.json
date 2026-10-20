@@ -1,0 +1,52 @@
+{
+  "project": "gateway-m22-validation-20261018",
+  "date": "2026-10-19",
+  "external_model_calls": false,
+  "response_headers": {
+    "18280": "ai-gateway/0.4",
+    "18281": "ai-gateway/0.4"
+  },
+  "gateway_admission_settings": [
+    "1",
+    "2",
+    "8",
+    "4194304",
+    "2000"
+  ],
+  "gateway-peer_admission_settings": [
+    "1",
+    "2",
+    "8",
+    "4194304",
+    "2000"
+  ],
+  "agent_configuration_and_sources": {
+    "workers": "2",
+    "files": {
+      "web_app.py": "cac8305f0e05d41b3fb38d2d3d285df9b3e47dca1920ab230c7a8fab293cc17d",
+      "agent_stream.py": "d87ed0a3faeb24e1ddb3f91befcfb5de801fef179cff43a4fe5aeb010653abce"
+    }
+  },
+  "restore_report": "evidence/m22-compose-restore-20261019.json",
+  "cleanup": {
+    "verified": true,
+    "containers_removed": [
+      "gateway-m22-validation-20261018-gateway-peer-1",
+      "gateway-m22-validation-20261018-gateway-1",
+      "gateway-m22-validation-20261018-agent-1",
+      "gateway-m22-validation-20261018-redis-1",
+      "gateway-m22-validation-20261018-model-1"
+    ],
+    "synthetic_volumes_removed": [
+      "gateway-m22-validation-20261018_agent_data",
+      "gateway-m22-validation-20261018_agent_models"
+    ],
+    "remaining": {
+      "containers": "",
+      "volumes": "",
+      "networks": ""
+    },
+    "images_retained": true
+  },
+  "status": "passed"
+}
